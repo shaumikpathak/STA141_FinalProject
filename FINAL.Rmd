@@ -8,35 +8,65 @@ output: word_document
 ```{r}
 bank.data = bank_full
 head(bank.data)
+
+#Binary
+housing.binary = ifelse(bank.data$housing=='yes',1,0)
+
 ```
 
-2.) Exploratory Data Analysis:
+2.) Exploratory Categorical Data Analysis:
 ```{r}
 summary(bank.data)
 
 deposit.status = bank$y         
-
+#Age
 ggplot(bank.data,aes(x=bank.data$age,fill=deposit.status)) + geom_histogram(binwidth=1) +
   labs(y= "Number of Clients", x="Age", title = "Distribution of Deposits by Age")
+age.desc = bank.data %>% group_by(y) %>% summarise(age.mean = mean(age), .groups = 'drop')
+
+#Job
 ggplot(bank.data, aes(x=bank.data$job,fill=deposit.status)) + geom_bar(position = position_dodge())+
-  labs(y= "Number of Clients", x="Job", title = "Distribution of Deposits by Job Type") #need to change aesthetic for x labels of factors#
+  labs(y= "Number of Clients", x="Job", title = "Distribution of Deposits by Job Type")+
+  theme(axis.text.x = element_text(size = 10, angle = 45, hjust=1, vjust=1))
+
+#Marital Status
 ggplot(bank.data, aes(x=bank.data$marital,fill=deposit.status)) + geom_bar(position = position_dodge()) +
-  labs(y= "Number of Clients", x="Marital", title = "Marital")
+  labs(y= "Number of Clients", x="Marital Status", title = "Distribution of Deposits by Marital Status")
+
+#Education
 ggplot(bank.data, aes(x=bank.data$education,fill=deposit.status)) + geom_bar(position = position_dodge())+
   labs(y= "Number of Clients", x="Education", title = "Distribution of Deposits by Educational Qualification")
+
+#Credit Default
 ggplot(bank.data, aes(x=bank.data$default,fill=deposit.status)) + geom_bar(position = position_dodge())+
-  labs(y= "Number of Clients", x="Contact", title = "Distribution of Credit Default and Deposits")
+  labs(y= "Number of Clients", x="Credit Default", title = "Distribution of Credit Default and Deposits")
+
+#Housing Loan
 ggplot(bank.data, aes(x=bank.data$housing,fill=deposit.status)) + geom_bar(position = position_dodge())+
   labs(y= "Number of Clients", x="Contact", title = "Distribution of Client Having a Housing Loan and Deposit")
+
+#Contact
 ggplot(bank.data, aes(x=bank.data$contact,fill=deposit.status)) + geom_bar(position = position_dodge())+
-  labs(y= "Number of Clients", x="Contact", title = "Contact")
+  labs(y= "Number of Clients", x="Contact", title = "Distribution of Deposits by Contact")
+
+#Loans
 ggplot(bank.data, aes(x=bank.data$loan,fill=deposit.status)) + geom_bar(position = position_dodge())+
   labs(y= "Number of Clients", x="Loan", title = "Distribution of Clients with Loans and Deposit")
+
+#month
 ggplot(bank.data, aes(x=bank.data$month,fill=deposit.status)) + geom_bar(position = position_dodge())+
   labs(y= "Number of Clients", x="Month", title = "Distribution of Deposits by Month")
+
+#Day
 ggplot(bank.data, aes(x=bank.data$day,fill=deposit.status)) + geom_bar(position = position_dodge())+
   labs(y= "Number of Clients", x="Day of Week", title = "Distribution of Deposits by Day of Week")
+
+#
 ggplot(bank.data, aes(x=bank$poutcome,fill=deposit.status)) + geom_bar(position = position_dodge()) +
   labs(y= "Number of Clients", x="poutcome", title = "Previous Campaign Outcome")
 ```
+- Add interpretations
+
+
+
 
