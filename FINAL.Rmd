@@ -10,8 +10,8 @@ bank.data = bank_full
 head(bank.data)
 
 #Binary
-housing.binary = ifelse(bank.data$housing=='yes',1,0)
 
+bank.data$y = ifelse(bank.data$y=='yes',1,0)
 ```
 
 2.) Exploratory Categorical Data Analysis:
@@ -43,7 +43,7 @@ ggplot(bank.data, aes(x=bank.data$default,fill=deposit.status)) + geom_bar(posit
 
 #Housing Loan
 ggplot(bank.data, aes(x=bank.data$housing,fill=deposit.status)) + geom_bar(position = position_dodge())+
-  labs(y= "Number of Clients", x="Contact", title = "Distribution of Client Having a Housing Loan and Deposit")
+  labs(y= "Number of Clients", x="House Loan", title = "Distribution of Client Having a Housing Loan and Deposit")
 
 #Contact
 ggplot(bank.data, aes(x=bank.data$contact,fill=deposit.status)) + geom_bar(position = position_dodge())+
@@ -61,7 +61,7 @@ ggplot(bank.data, aes(x=bank.data$month,fill=deposit.status)) + geom_bar(positio
 ggplot(bank.data, aes(x=bank.data$day,fill=deposit.status)) + geom_bar(position = position_dodge())+
   labs(y= "Number of Clients", x="Day of Week", title = "Distribution of Deposits by Day of Week")
 
-#
+#previous outcome
 ggplot(bank.data, aes(x=bank$poutcome,fill=deposit.status)) + geom_bar(position = position_dodge()) +
   labs(y= "Number of Clients", x="poutcome", title = "Previous Campaign Outcome")
 ```
