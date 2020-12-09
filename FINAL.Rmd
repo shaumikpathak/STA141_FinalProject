@@ -6,19 +6,51 @@ output: word_document
 ---
 1.) Setup
 ```{r}
+library(readr)
+library(tidyverse)
+library(fastDummies)
+library(knitr)
+library(plyr)
+library(dplyr)
+bank_full <- read_delim("datasets/bank-full.csv", 
+    ";", escape_double = FALSE, trim_ws = TRUE)
+#View(bank_full)
 bank.data = bank_full
 head(bank.data)
 
 #Binary
+housing.binary = ifelse(bank.data$housing=='yes',1,0)
 
-bank.data$y = ifelse(bank.data$y=='yes',1,0)
 ```
 
-2.) Exploratory Categorical Data Analysis:
+## modifying data set
+```{r}
+cat_data = data.frame(bank.data$job,bank.data$marital,bank.data$education)
+bin_cat_data = dummy_cols(cat_data)
+bin_cat_data = bin_cat_data %>% select(4:22)
+yesno_data = data.frame(bank.data$default,bank.data$housing,bank.data$loan,bank.data$y)
+
+
+yesno_data$bank.data.default <- revalue(yesno_data$bank.data.default, c("yes"=1))
+yesno_data$bank.data.default <- revalue(yesno_data$bank.data.default, c("no"=0))
+yesno_data$bank.data.housing <- revalue(yesno_data$bank.data.housing, c("yes"=1))
+yesno_data$bank.data.housing <- revalue(yesno_data$bank.data.housing, c("no"=0))
+yesno_data$bank.data.loan <- revalue(yesno_data$bank.data.loan, c("yes"=1))
+yesno_data$bank.data.loan <- revalue(yesno_data$bank.data.loan, c("no"=0))
+yesno_data$bank.data.y <- revalue(yesno_data$bank.data.y, c("yes"=1))
+yesno_data$bank.data.y <- revalue(yesno_data$bank.data.y, c("no"=0))
+remaining_data = bank.data %>% select(1,6,9,10,11,12,13,14,15,16)
+master_bin_data = cbind(bin_cat_data,yesno_data,remaining_data)
+
+head(master_bin_data)
+
+```
+
+## 2.) Exploratory Categorical Data Analysis:
 ```{r}
 summary(bank.data)
 
-deposit.status = bank$y         
+deposit.status = bank.data$y         
 #Age
 ggplot(bank.data,aes(x=bank.data$age,fill=deposit.status)) + geom_histogram(binwidth=1) +
   labs(y= "Number of Clients", x="Age", title = "Distribution of Deposits by Age")
@@ -43,7 +75,7 @@ ggplot(bank.data, aes(x=bank.data$default,fill=deposit.status)) + geom_bar(posit
 
 #Housing Loan
 ggplot(bank.data, aes(x=bank.data$housing,fill=deposit.status)) + geom_bar(position = position_dodge())+
-  labs(y= "Number of Clients", x="House Loan", title = "Distribution of Client Having a Housing Loan and Deposit")
+  labs(y= "Number of Clients", x="Contact", title = "Distribution of Client Having a Housing Loan and Deposit")
 
 #Contact
 ggplot(bank.data, aes(x=bank.data$contact,fill=deposit.status)) + geom_bar(position = position_dodge())+
@@ -61,12 +93,15 @@ ggplot(bank.data, aes(x=bank.data$month,fill=deposit.status)) + geom_bar(positio
 ggplot(bank.data, aes(x=bank.data$day,fill=deposit.status)) + geom_bar(position = position_dodge())+
   labs(y= "Number of Clients", x="Day of Week", title = "Distribution of Deposits by Day of Week")
 
-#previous outcome
+#
 ggplot(bank.data, aes(x=bank$poutcome,fill=deposit.status)) + geom_bar(position = position_dodge()) +
   labs(y= "Number of Clients", x="poutcome", title = "Previous Campaign Outcome")
 ```
 - Add interpretations
+One interesting observation we can make is that the percentage of yes for those without housing loans is noticeably greater than for those with a housing loan
+
+### yes percentages
+```{r}
 
 
-
-
+```
