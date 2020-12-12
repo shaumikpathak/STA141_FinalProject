@@ -212,3 +212,53 @@ f_thirteenth_run <- add1(glm(as.factor(y)~duration+poutcome+month+contact+housin
 #Stop. All p values significant at alpha = 0.05. Drawback = cutoff level is trivial choice. 
 ```
 
+## Forward AIC - AIC give more complicated model, better predictive performance
+```{r, message=FALSE, warning = FALSE}
+f_AIC <- step(glm(y~1, binomial, lr.bank.data),
+     scope = ~age+job+marital+education+default+balance+housing+loan+contact+day+month+duration+campaign+pdays+previous+poutcome,
+     direction = "forward")
+#pdays,default,age
+```
+
+## Forward BIC - simple - good for inference
+```{r, message=FALSE, warning = FALSE}
+f_BIC <- step(glm(y~1, binomial, lr.bank.data),
+     scope = ~age+job+marital+education+default+balance+housing+loan+contact+day+month+duration+campaign+pdays+previous+poutcome,
+     direction = "forward",
+     k = log(dim(lr.bank.data)[1]))
+#balance,age,previous,pdays,default,job
+```
+
+## Backward AIC - AIC give more complicated model, better predictive performance
+```{r, message=FALSE, warning = FALSE}
+b_AIC <- step(glm(y~., binomial, lr.bank.data),
+     direction = "backward")
+#pdays,default,age
+```
+
+## Backward BIC - simple - good for inference
+```{r}
+b_BIC <- step(glm(y~., binomial, lr.bank.data),
+     direction = "backward",
+     k = log(dim(lr.bank.data)[1]))
+#job,default,pdays,previous,age,balance
+```
+
+##bothward AIC
+```{r}
+both_AIC <- step(glm(y~1, binomial, lr.bank.data),
+     scope = ~age+job+marital+education+default+balance+housing+loan+contact+day+month+duration+campaign+pdays+previous+poutcome,
+     direction = "both")
+#y ~ duration + poutcome + month + contact + housing + job + campaign + loan + marital + education + day + balance + previous
+```
+
+##bothward BIC
+```{r}
+both_BIC <- step(glm(y~1, binomial, lr.bank.data),
+     scope = ~age+job+marital+education+default+balance+housing+loan+contact+day+month+duration+campaign+pdays+previous+poutcome,
+     direction = "both",
+     k = log(dim(lr.bank.data)[1]))
+
+#y ~ duration + poutcome + month + contact + housing + campaign + marital + loan + education + day
+```
+
