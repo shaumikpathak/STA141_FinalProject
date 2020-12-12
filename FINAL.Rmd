@@ -25,28 +25,32 @@ While our main goal is to build a classification model and assist with bank mark
 
 To answer the primary scientific question of interest, we would fit our model in 2 different methods. The response will be a binary yes/no variable "has the client subscribed a term deposit?" All other variables provided will then be our input variables to allow us to build this model. Here, our 2  classification methods are
 
-1. Logistic Regression
-2. Random Forest
+1.Decision Trees
+2. Logistic Regression
+3. Random Forest
 
 We would then use both backward and forward stepwise model selection using a likelihood ratio test (LRT) to conduct a heauristic model selection and prune down our model. We would also use cross validation (CV) to obtain more robust results.
 
 # 1.) Setup
 ```{r}
+set.seed(1984)
 library(readr)
 library(tidyverse)
 library(fastDummies)
 library(knitr)
 library(plyr)
 library(dplyr)
-bank_full <- read_delim("datasets/bank-full.csv", 
-    ";", escape_double = FALSE, trim_ws = TRUE)
+library(explore)
+library(corrplot)
+library(ROCR)
+#bank_full <- read_delim("datasets/bank-full.csv", 
+  #  ";", escape_double = FALSE, trim_ws = TRUE)
 #View(bank_full)
+bank_test <- read_delim("Desktop/STA 141A Final /bank.csv", 
+    ";", escape_double = FALSE, trim_ws = TRUE)
+View(bank_test)
 bank.data = bank_full
 head(bank.data)
-
-#Binary
-housing.binary = ifelse(bank.data$housing=='yes',1,0)
-
 ```
 
 ## modifying data set
@@ -54,9 +58,8 @@ housing.binary = ifelse(bank.data$housing=='yes',1,0)
 cat_data = data.frame(bank.data$job,bank.data$marital,bank.data$education)
 bin_cat_data = dummy_cols(cat_data)
 bin_cat_data = bin_cat_data %>% select(4:22)
+
 yesno_data = data.frame(bank.data$default,bank.data$housing,bank.data$loan,bank.data$y)
-
-
 yesno_data$bank.data.default <- revalue(yesno_data$bank.data.default, c("yes"=1))
 yesno_data$bank.data.default <- revalue(yesno_data$bank.data.default, c("no"=0))
 yesno_data$bank.data.housing <- revalue(yesno_data$bank.data.housing, c("yes"=1))
@@ -67,16 +70,15 @@ yesno_data$bank.data.y <- revalue(yesno_data$bank.data.y, c("yes"=1))
 yesno_data$bank.data.y <- revalue(yesno_data$bank.data.y, c("no"=0))
 remaining_data = bank.data %>% select(1,6,9,10,11,12,13,14,15,16)
 master_bin_data = cbind(bin_cat_data,yesno_data,remaining_data)
-
 head(master_bin_data)
-
 ```
+
 
 ## 2.) Exploratory Categorical Data Analysis:
 ```{r}
 summary(bank.data)
-
 deposit.status = bank.data$y         
+
 #Age
 ggplot(bank.data,aes(x=bank.data$age,fill=deposit.status)) + geom_histogram(binwidth=1) +
   labs(y= "Number of Clients", x="Age", title = "Distribution of Deposits by Age")
@@ -119,26 +121,139 @@ ggplot(bank.data, aes(x=bank.data$month,fill=deposit.status)) + geom_bar(positio
 ggplot(bank.data, aes(x=bank.data$day,fill=deposit.status)) + geom_bar(position = position_dodge())+
   labs(y= "Number of Clients", x="Day of Week", title = "Distribution of Deposits by Day of Week")
 
-#
-ggplot(bank.data, aes(x=bank.data$poutcome,fill=deposit.status)) + geom_bar(position = position_dodge()) +
+#Previous Campaign Outcome
+ggplot(bank.data, aes(x=bank$poutcome,fill=deposit.status)) + geom_bar(position = position_dodge()) +
   labs(y= "Number of Clients", x="poutcome", title = "Previous Campaign Outcome")
-```
-- Add interpretations
-One interesting observation we can make is that the percentage of yes for those without housing loans is noticeably greater than for those with a housing loan
 
-### yes percentages
+##Interactive EDA (NOTE: SET TARGET TO y. use install.packages("explore"))
+explore_shiny(bank.data)
+
+```
+A short summary of the Exploratory Data Analysis is as follows:
+
+1.) Mean Age: 40.936
+    Median Age: 39
+    25th Percentile Age: 33
+    75th Percentile Age: 48
+    As we can see in the interactive plots when split by target is deselected, we can see that customers who are over the age of 60 are responsible for 33.6% of all deposits made followed by customers under the age of 30 at 18.5%
+
+2.) Jobs: 
+We can see a distribution of the types of jobs that dataset contains:
+     admin.        = 5 171 (11.4%)
+     blue-collar   = 9 732 (21.5%)
+     entrepreneur  = 1 487 (3.3%)
+     housemaid     = 1 240 (2.7%)
+     management    = 9 458 (20.9%)
+     retired       = 2 264 (5%)
+     self-employed = 1 579 (3.5%)
+     services      = 4 154 (9.2%)
+     student       = 938 (2.1%)
+     technician    = 7 597 (16.8%)
+Most of the deposits are made by customers who work in management. Nearly 25% of customers who work as managers deposit money with the bank, followed by techinicians at around 17%.
+
+3.) Marital Status:
+Distribution of the martial status of customers is as follows:
+     divorced = 5 207 (11.5%)
+     married  = 27 214 (60.2%)
+     single   = 12 790 (28.3%)
+Married couples who deposit money in the bank account for 61.3% of deposits made, followed by 36.2% of single customers making deposits, followed by 11.8% of divorced customers make deposits. 
+
+4.) Education: 
+Summary statistics for educational distribution of the bank's customers are as follows:
+     primary = 6 851 (15.2%)
+     secondary = 23 202 (51.3%)
+     tertiary  = 13 301 (29.4%)
+     unknown   = 1 857 (4.1%)
+
+
+5.) Defaults:
+98.2% of customers do not default on credit payments. 11.8% of customers who do not default on payments make deposits as compared to 6.4% of customers who default on credit. 
+
+5.) Balance:
+Summary statistics of balance is as follows:
+  Minimum balance: -8019
+  Maximum balance: 102,127
+  25th percentile balance: 72
+  75th percentile balance: 1428
+  median balance: 448
+  mean: 1362
+From the distribution plot we see that customers with a balance of 3000-6000 account for most customers who deposit money with the bank. 
+
+6.) Housing Loan
+
+#test and train dataset
+```{r}
+bank.train = bank.data
+bank.test = bank_test
+```
 
 # Logistic regression & Model Selection - Charles
 ```{r}
 #make copy of data
-lr.bank.data <- bank.data
+lr.bank.data <- bank.train
+
 #transform y into 1 and 0
 lr.bank.data$y <- ifelse(lr.bank.data$y=='yes',1,0)
-#create logistic model
-logistic.model <- glm(as.factor(y)~., binomial,lr.bank.data)
+
+#create logistic model with all variables
+logistic.model <- glm(as.factor(y)~., binomial(link = "logit"),lr.bank.data)
+
 #summary of logistic model
 summary(logistic.model)
+
+#prediction
+logistic.pred = predict(logistic.model, newdata = bank.test, type = 'response')
+
+#Tuning parameters
+pred.tune.log = prediction(logistic.pred, bank.test$y)
+perf.tune.log = performance(pred.tune.log, measure = "tpr", x.measure = "fpr")
+accuracy.log = performance(pred.tune.log, measure = "acc", x.measure = "cutoff")
+plot(accuracy.log)
+plot(perf.tune.log) ##selecting cut off calue of 0.3
+
+pred.cutoff = cut(logistic.pred, c(-Inf, 0.2, Inf), labels = c("No","Yes"))
+ 
+##Confusion
+table(pred.cutoff, bank.test$y)
+summary(pred.cutoff)
+acc.logistic = ((3648+343)/(3648+178+343+252))
 ```
+-Accuracy = TP+TN/(TP+TN+FP+FN)
+Thus accuracy = `r acc.logistic`
+
+### Correlation Analysis
+```{r}
+bank.num = data.frame(as.numeric(as.factor(bank.data$age)),
+                      as.numeric(as.factor(bank.data$job)),
+                      as.numeric(as.factor(bank.data$marital)),
+                      as.numeric(as.factor(bank.data$education)),
+                      as.numeric(as.factor(bank.data$default)),
+                      as.numeric(as.factor(bank.data$balance)),
+                      as.numeric(as.factor(bank.data$housing)),
+                      as.numeric(as.factor(bank.data$loan)),
+                      as.numeric(as.factor(bank.data$contact)),
+                      as.numeric(as.factor(bank.data$day)),
+                      as.numeric(as.factor(bank.data$month)),
+                      as.numeric(as.factor(bank.data$duration)),
+                      as.numeric(as.factor(bank.data$campaign)),
+                      as.numeric(as.factor(bank.data$pdays)),
+                      as.numeric(as.factor(bank.data$previous)),
+                      as.numeric(as.factor(bank.data$poutcome)),
+                      as.numeric(as.factor(bank.data$y)))
+                      
+colnames(bank.num) = c("Age", "Job", "Marital", "Education", "Default", "Balance", "Housing", " Loan", "Contact", "Day", "Month", "Duration","Campaign", "Pdays", "Previous", "Poutcome","Y")
+
+bank.num %>%
+  cor() %>%
+  corrplot(method = "number",
+           tl.srt = 45,
+           bg = "black",
+           order = "FPC",
+           tl.col = "black",
+           number.cex = 0.5)
+```
+The above correlogram is ordered in a first principle component manner. We can see that for the response variable, i.e. Y, the following can be said for its correlation with respect to the predictor variables:
+1.) 
 
 ## Backward stepwise model selection, note tried adding interactions but stack overflow
 ```{r}
@@ -154,6 +269,7 @@ b_fourth_run <- drop1(glm(as.factor(y)~job+marital+education+balance+housing+loa
 b_fifth_run <- drop1(glm(as.factor(y)~job+marital+education+balance+housing+loan+contact+day+month+duration+campaign+poutcome, binomial,lr.bank.data),test="LRT")
 #Stop. All p vaues significant at alpha = 0.05. Drawback = cutoff level is trivial choice. 
 ```
+
 
 ## Forward stepwise model selection, note tried adding interactions but stack overflow
 ```{r, message=FALSE}
