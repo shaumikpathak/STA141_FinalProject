@@ -4,7 +4,7 @@ author: "Shaumik Pathak"
 date: "11/29/2020"
 output: word_document
 ---
-1.) Setup
+# 1.) Setup
 ```{r}
 library(readr)
 library(tidyverse)
