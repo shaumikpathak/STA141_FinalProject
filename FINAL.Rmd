@@ -127,3 +127,43 @@ ggplot(bank.data, aes(x=bank.data$poutcome,fill=deposit.status)) + geom_bar(posi
 One interesting observation we can make is that the percentage of yes for those without housing loans is noticeably greater than for those with a housing loan
 
 ### yes percentages
+
+# Logistic regression & Model Selection - Charles
+```{r}
+#make copy of data
+lr.bank.data <- bank.data
+#transform y into 1 and 0
+lr.bank.data$y <- ifelse(lr.bank.data$y=='yes',1,0)
+#create logistic model
+logistic.model <- glm(as.factor(y)~., binomial,lr.bank.data)
+#summary of logistic model
+summary(logistic.model)
+```
+
+## Backward stepwise model selection, note tried adding interactions but stack overflow
+```{r}
+#perform feature selection using likelihood ratio test (comparing a certain coeffeicient vs. it to be zero) to prune down model. Alpha = 0.05
+b_first_run <- drop1(glm(as.factor(y)~., binomial,lr.bank.data),test="LRT")
+#Find largest p value (larger p value indicates insignificance) to be age, so we drop age from our second run
+b_second_run <- drop1(glm(as.factor(y)~job+marital+education+default+balance+housing+loan+contact+day+month+duration+campaign+pdays+previous+poutcome, binomial,lr.bank.data),test="LRT")
+#Find largest p value to be default, so drop default from our third run
+b_third_run <- drop1(glm(as.factor(y)~job+marital+education+balance+housing+loan+contact+day+month+duration+campaign+pdays+previous+poutcome, binomial,lr.bank.data),test="LRT")
+#Find largest p value to be pdays, so drop pdays from our fourth run
+b_fourth_run <- drop1(glm(as.factor(y)~job+marital+education+balance+housing+loan+contact+day+month+duration+campaign+previous+poutcome, binomial,lr.bank.data),test="LRT")
+#Find largest p value to be previous, so drop previous from our fifth run
+b_fifth_run <- drop1(glm(as.factor(y)~job+marital+education+balance+housing+loan+contact+day+month+duration+campaign+poutcome, binomial,lr.bank.data),test="LRT")
+#Stop. All p vaues significant at alpha = 0.05. Drawback = cutoff level is trivial choice. 
+```
+
+## Forward stepwise model selection, note tried adding interactions but stack overflow
+```{r, message=FALSE}
+#perform feature selection using likelihood ratio test (comparing a certain coeffeicient vs. it to be zero) to prune model. Forward stepwise model selection adds variable with smallest p value each time. Alpha = 0.05
+f_first_run <- add1(glm(as.factor(y)~1, binomial, lr.bank.data),
+     scope = ~age+job+marital+education+default+balance+housing+loan+contact+day+month+duration+campaign+pdays+previous+poutcome,
+     test = "LRT")
+#Find smallest p value (small p value indicates significance) to be duration, so we add duration to our second run
+f_second_run <- add1(glm(as.factor(y)~as.factor(duration), binomial, data = na.omit(lr.bank.data)),
+     scope = ~.+age+job+marital+education+default+balance+housing+loan+contact+day+month+campaign+pdays+previous+poutcome,
+     test = "LRT")
+```
+
