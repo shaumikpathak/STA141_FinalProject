@@ -1,9 +1,35 @@
 ---
-title: "Final Project"
-author: "Shaumik Pathak"
-date: "11/29/2020"
-output: word_document
+title: "STA141A Final Project"
+author: "Animay Sharma, Aditya Kallepalli, Charles Chien, Shaumik Pathak"
+date: "12/14/2020"
+output: pdf_document
 ---
+
+# 1. Introduction
+## 1.1 Background
+Here, we have a set of marketing data of a banking institution. The data is related with direct marketing campaigns of a Portuguese banking institution. The marketing campaigns were based on phone calls. Often, more than one contact to the same client was required, in order to access if the product (bank term deposit) would be ('yes') or not ('no') subscribed.
+
+Among the four datasets provided, we chose to utilize the "bank-full.csv" in this report, with 17 different inputs.
+
+As mentioned in article (Lopez, Customer segmentation using machine learning 2020) [1], data science and machine learning methods are helpful when it comes to helping companies with customer segmentation. Customer targeting is the process of analyzing customer features to select those customers who are more prone to a target product or service. By making intelligent use of data, companies could make a big difference to their competitors. 
+
+Advanced analytics plays a key role when it comes to selecting potentially profitable clients, which allows the design of more effective marketing campaigns. By using the four steps of advanced analytics: descriptive, diagnostic, predictive, and prescriptive, we would be able to answer key questions such as "what happened?", "why did it happen?", "what will happen?", and "how can we make it happen?" 
+
+In this report, we would be covering most of those steps. Our primary goal is to build a predictive model to answer a simple yes or no question: to determine whether a client will sign on to a long-term deposit. A model as such would allow banks to save on marketing expense on groups of customers that have a low chance of subscription, and focus on other customers that have a high chance of success. Overall, this would improve the profitability of banks and ultimately decrease marketing deficiencies.
+
+While our main goal is to build a classification model and assist with bank marketing efforts, we would also like to conduct an exploratory data analysis (EDA) to explore relationships between different input variables. We would report any useful insights along the way, which covers both the "descriptive" and "diagnostic" parts of the four steps of advanced analytics as mentioned in the article.
+
+*[1] Lopez, R. (2020). Customer segmentation using machine learning. Retrieved December 12, 2020, from https://www.neuraldesigner.com/blog/customer_segmentation_using_advanced_analytics*
+
+## 1.2 Statistical Questions of Interest
+
+To answer the primary scientific question of interest, we would fit our model in 2 different methods. The response will be a binary yes/no variable "has the client subscribed a term deposit?" All other variables provided will then be our input variables to allow us to build this model. Here, our 2  classification methods are
+
+1. Logistic Regression
+2. Random Forest
+
+We would then use both backward and forward stepwise model selection using a likelihood ratio test (LRT) to conduct a heauristic model selection and prune down our model. We would also use cross validation (CV) to obtain more robust results.
+
 # 1.) Setup
 ```{r}
 library(readr)
@@ -94,14 +120,10 @@ ggplot(bank.data, aes(x=bank.data$day,fill=deposit.status)) + geom_bar(position 
   labs(y= "Number of Clients", x="Day of Week", title = "Distribution of Deposits by Day of Week")
 
 #
-ggplot(bank.data, aes(x=bank$poutcome,fill=deposit.status)) + geom_bar(position = position_dodge()) +
+ggplot(bank.data, aes(x=bank.data$poutcome,fill=deposit.status)) + geom_bar(position = position_dodge()) +
   labs(y= "Number of Clients", x="poutcome", title = "Previous Campaign Outcome")
 ```
 - Add interpretations
 One interesting observation we can make is that the percentage of yes for those without housing loans is noticeably greater than for those with a housing loan
 
 ### yes percentages
-```{r}
-
-
-```
