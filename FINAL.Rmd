@@ -267,19 +267,119 @@ b_third_run <- drop1(glm(as.factor(y)~job+marital+education+balance+housing+loan
 b_fourth_run <- drop1(glm(as.factor(y)~job+marital+education+balance+housing+loan+contact+day+month+duration+campaign+previous+poutcome, binomial,lr.bank.data),test="LRT")
 #Find largest p value to be previous, so drop previous from our fifth run
 b_fifth_run <- drop1(glm(as.factor(y)~job+marital+education+balance+housing+loan+contact+day+month+duration+campaign+poutcome, binomial,lr.bank.data),test="LRT")
-#Stop. All p vaues significant at alpha = 0.05. Drawback = cutoff level is trivial choice. 
+#Stop. All p values significant at alpha = 0.05. Drawback = cutoff level is trivial choice. 
 ```
 
 
 ## Forward stepwise model selection, note tried adding interactions but stack overflow
-```{r, message=FALSE}
+```{r, message=FALSE, warning = FALSE}
 #perform feature selection using likelihood ratio test (comparing a certain coeffeicient vs. it to be zero) to prune model. Forward stepwise model selection adds variable with smallest p value each time. Alpha = 0.05
 f_first_run <- add1(glm(as.factor(y)~1, binomial, lr.bank.data),
      scope = ~age+job+marital+education+default+balance+housing+loan+contact+day+month+duration+campaign+pdays+previous+poutcome,
      test = "LRT")
 #Find smallest p value (small p value indicates significance) to be duration, so we add duration to our second run
-f_second_run <- add1(glm(as.factor(y)~as.factor(duration), binomial, data = na.omit(lr.bank.data)),
+f_second_run <- add1(glm(as.factor(y)~duration, binomial, data = na.omit(lr.bank.data)),
      scope = ~.+age+job+marital+education+default+balance+housing+loan+contact+day+month+campaign+pdays+previous+poutcome,
      test = "LRT")
+#Find smallest p value (small p value indicates significance) to be poutcome, so we add poutcome to our third run
+f_third_run <- add1(glm(as.factor(y)~duration+poutcome, binomial, data = na.omit(lr.bank.data)),
+     scope = ~.+age+job+marital+education+default+balance+housing+loan+contact+day+month+campaign+pdays+previous,
+     test = "LRT")
+#Find smallest p value (small p value indicates significance) to be month, so we add month to our fourth run
+f_fourth_run <- add1(glm(as.factor(y)~duration+poutcome+month, binomial, data = na.omit(lr.bank.data)),
+     scope = ~.+age+job+marital+education+default+balance+housing+loan+contact+day+campaign+pdays+previous,
+     test = "LRT")
+#Find smallest p value (small p value indicates significance) to be contact, so we add contact to our fifth run
+f_fifth_run <- add1(glm(as.factor(y)~duration+poutcome+month+contact, binomial, data = na.omit(lr.bank.data)),
+     scope = ~.+age+job+marital+education+default+balance+housing+loan+day+campaign+pdays+previous,
+     test = "LRT")
+#Find smallest p value (small p value indicates significance) to be housing, so we add housing to our sixth run
+f_sixth_run <- add1(glm(as.factor(y)~duration+poutcome+month+contact+housing, binomial, data = na.omit(lr.bank.data)),
+     scope = ~.+age+job+marital+education+default+balance+loan+day+campaign+pdays+previous,
+     test = "LRT")
+#Find smallest p value (small p value indicates significance) to be job, so we add job to our seventh run
+f_seventh_run <- add1(glm(as.factor(y)~duration+poutcome+month+contact+housing+job, binomial, data = na.omit(lr.bank.data)),
+     scope = ~.+age+marital+education+default+balance+loan+day+campaign+pdays+previous,
+     test = "LRT")
+#Find smallest p value (small p value indicates significance) to be campaign, so we add campaign to our eighth run
+f_eighth_run <- add1(glm(as.factor(y)~duration+poutcome+month+contact+housing+job+campaign, binomial, data = na.omit(lr.bank.data)),
+     scope = ~.+age+marital+education+default+balance+loan+day+pdays+previous,
+     test = "LRT")
+#Find smallest p value (small p value indicates significance) to be loan, so we add loan to our ninth run
+f_ninth_run <- add1(glm(as.factor(y)~duration+poutcome+month+contact+housing+job+campaign+loan, binomial, data = na.omit(lr.bank.data)),
+     scope = ~.+age+marital+education+default+balance+day+pdays+previous,
+     test = "LRT")
+#Find smallest p value (small p value indicates significance) to be marital, so we add marital to our tenth run
+f_tenth_run <- add1(glm(as.factor(y)~duration+poutcome+month+contact+housing+job+campaign+loan+marital, binomial, data = na.omit(lr.bank.data)),
+     scope = ~.+age+education+default+balance+day+pdays+previous,
+     test = "LRT")
+#Find smallest p value (small p value indicates significance) to be education, so we add education to our eleventh run
+f_eleventh_run <- add1(glm(as.factor(y)~duration+poutcome+month+contact+housing+job+campaign+loan+marital+education, binomial, data = na.omit(lr.bank.data)),
+     scope = ~.+age+default+balance+day+pdays+previous,
+     test = "LRT")
+#Find smallest p value (small p value indicates significance) to be day, so we add day to our twelve run
+f_twelve_run <- add1(glm(as.factor(y)~duration+poutcome+month+contact+housing+job+campaign+loan+marital+education+day, binomial, data = na.omit(lr.bank.data)),
+     scope = ~.+age+default+balance+pdays+previous,
+     test = "LRT")
+#Find smallest p value (small p value indicates significance) to be balance, so we add balance to our thirteenth run
+f_thirteenth_run <- add1(glm(as.factor(y)~duration+poutcome+month+contact+housing+job+campaign+loan+marital+education+day+balance, binomial, data = na.omit(lr.bank.data)),
+     scope = ~.+age+default+pdays+previous,
+     test = "LRT")
+#Stop. All p values significant at alpha = 0.05. Drawback = cutoff level is trivial choice. 
 ```
+
+## Forward AIC - AIC give more complicated model, better predictive performance
+```{r, message=FALSE, warning = FALSE}
+f_AIC <- step(glm(y~1, binomial, lr.bank.data),
+     scope = ~age+job+marital+education+default+balance+housing+loan+contact+day+month+duration+campaign+pdays+previous+poutcome,
+     direction = "forward")
+#pdays,default,age
+```
+
+## Forward BIC - simple - good for inference
+```{r, message=FALSE, warning = FALSE}
+f_BIC <- step(glm(y~1, binomial, lr.bank.data),
+     scope = ~age+job+marital+education+default+balance+housing+loan+contact+day+month+duration+campaign+pdays+previous+poutcome,
+     direction = "forward",
+     k = log(dim(lr.bank.data)[1]))
+#balance,age,previous,pdays,default,job
+```
+
+## Backward AIC - AIC give more complicated model, better predictive performance
+```{r, message=FALSE, warning = FALSE}
+b_AIC <- step(glm(y~., binomial, lr.bank.data),
+     direction = "backward")
+#pdays,default,age
+```
+
+## Backward BIC - simple - good for inference
+```{r}
+b_BIC <- step(glm(y~., binomial, lr.bank.data),
+     direction = "backward",
+     k = log(dim(lr.bank.data)[1]))
+#job,default,pdays,previous,age,balance
+```
+
+##bothward AIC
+```{r}
+both_AIC <- step(glm(y~1, binomial, lr.bank.data),
+     scope = ~age+job+marital+education+default+balance+housing+loan+contact+day+month+duration+campaign+pdays+previous+poutcome,
+     direction = "both")
+#y ~ duration + poutcome + month + contact + housing + job + campaign + loan + marital + education + day + balance + previous
+```
+
+##bothward BIC
+```{r}
+both_BIC <- step(glm(y~1, binomial, lr.bank.data),
+     scope = ~age+job+marital+education+default+balance+housing+loan+contact+day+month+duration+campaign+pdays+previous+poutcome,
+     direction = "both",
+     k = log(dim(lr.bank.data)[1]))
+
+#y ~ duration + poutcome + month + contact + housing + campaign + marital + loan + education + day
+```
+
+
+
+
+
 
