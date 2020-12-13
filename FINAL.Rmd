@@ -78,6 +78,47 @@ While our main goal is to build a classification model and assist with bank mark
 
 *[0] Lopez, R. (2020). Customer segmentation using machine learning. Retrieved December 12, 2020, from https://www.neuraldesigner.com/blog/customer_segmentation_using_advanced_analytics*
 
+### 1.1.2 Data Description
+
+This data description is from the UCI machine learning repository for the dataset 'Bank Marketing Data Set'.[1]
+
+1 - age (numeric)
+
+2 - job : type of job (categorical: 'admin.','blue-collar','entrepreneur','housemaid','management','retired','self-employed','services','student','technician','unemployed','unknown')
+
+3 - marital : marital status (categorical: 'divorced','married','single','unknown'; note: 'divorced' means divorced or widowed)
+
+4 - education (categorical: 'basic.4y','basic.6y','basic.9y','high.school','illiterate','professional.course','university.degree','unknown')
+
+5 - default: has credit in default? (categorical: 'no','yes','unknown')
+
+6 - housing: has housing loan? (categorical: 'no','yes','unknown')
+
+7 - loan: has personal loan? (categorical: 'no','yes','unknown')
+
+ related with the last contact of the current campaign:
+ 
+8 - contact: contact communication type (categorical: 'cellular','telephone')
+
+9 - month: last contact month of year (categorical: 'jan', 'feb', 'mar', ..., 'nov', 'dec')
+
+10 - day_of_week: last contact day of the week (categorical: 'mon','tue','wed','thu','fri')
+
+11 - duration: last contact duration, in seconds (numeric).
+Important note: this attribute highly affects the output target (e.g., if duration=0 then y='no'). Yet, the duration is not known before a call is performed. Also, after the end of the call y is obviously known. Thus, this input should only be included for benchmark purposes and should be discarded if the intention is to have a realistic predictive model.
+
+ other attributes:
+ 
+12 - campaign: number of contacts performed during this campaign and for this client (numeric, includes last contact)
+
+13 - pdays: number of days that passed by after the client was last contacted from a previous campaign (numeric; 999 means client was not previously contacted)
+
+14 - previous: number of contacts performed before this campaign and for this client (numeric)
+
+15 - poutcome: outcome of the previous marketing campaign (categorical: 'failure','nonexistent','success')
+
+*[1] Bank Marketing Data Set, [Moro Et Al., 2014] S. Moro, P. Cortez and P. Rita. A Data-Driven Approach to Predict the Success of Bank Telemarketing. Decision Support Systems, Elsevier, 62:22-31, June 2014, archive.ics.uci.edu/ml/datasets/Bank+Marketing.*
+
 ## 1.2 Statistical Questions of Interest
 
 To answer the primary scientific question of interest, we would fit our model in 2 different methods. The response will be a binary yes/no variable "has the client subscribed a term deposit?" All other variables provided will then be our input variables to allow us to build this model. Here, our 2  classification methods are
@@ -162,6 +203,7 @@ A short summary of the Exploratory Data Analysis is as follows:
     As we can see in the interactive plots when split by target is deselected, we can see that customers who are over the age of 60 are responsible for 33.6% of all deposits made followed by customers under the age of 30 at 18.5%
 
 2.) Jobs: 
+
 We can see a distribution of the types of jobs that dataset contains:
      admin.        = 5 171 (11.4%)
      blue-collar   = 9 732 (21.5%)
@@ -176,6 +218,7 @@ We can see a distribution of the types of jobs that dataset contains:
 Most of the deposits are made by customers who work in management. Nearly 25% of customers who work as managers deposit money with the bank, followed by techinicians at around 17%.
 
 3.) Marital Status:
+
 Distribution of the martial status of customers is as follows:
      divorced = 5 207 (11.5%)
      married  = 27 214 (60.2%)
@@ -183,6 +226,7 @@ Distribution of the martial status of customers is as follows:
 Married couples who deposit money in the bank account for 61.3% of deposits made, followed by 36.2% of single customers making deposits, followed by 11.8% of divorced customers make deposits. 
 
 4.) Education: 
+
 Summary statistics for educational distribution of the bank's customers are as follows:
      primary = 6 851 (15.2%)
      secondary = 23 202 (51.3%)
@@ -191,9 +235,11 @@ Summary statistics for educational distribution of the bank's customers are as f
 
 
 5.) Defaults:
+
 98.2% of customers do not default on credit payments. 11.8% of customers who do not default on payments make deposits as compared to 6.4% of customers who default on credit. 
 
 6.) Balance:
+
 Summary statistics of balance is as follows:
   Minimum balance: -8019
   Maximum balance: 102,127
@@ -204,11 +250,15 @@ Summary statistics of balance is as follows:
 From the distribution plot we see that customers with a balance of 3000-6000 account for most customers who deposit money with the bank. 
 
 7.) Housing Loan
+
 55.6% of the data do have housing loans, which leaves the remaining 44.4% of the data that does not have housing loans. Of those who had a housing loan, Only 36.6% have deposited with the bank, while of those who did not have a housing loan 63.4% have deposited with the bank. Looking at this we can say that those without a
 housing loan are more likely to deposit with the bank from the marketing channels.
 
-8.)
+8.)Personal loan
 
+looking at the data for personal loans we can observe that 6.7% of those who said they had a personal loan deposited with the bank while 12.7% percent of those who did not have a personal loan deposited with the bank. We may see this feature in our Logistic regression models as the difference between those that have a loan and do not have a loan is very apparent.
+
+9.)
 
 
 ### 2.2.2 Main Analysis
