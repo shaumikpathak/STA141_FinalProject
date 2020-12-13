@@ -26,10 +26,14 @@ require(caTools)
 library(rpart)
 library(pROC)
 library(ROCR)
+library(e1071)
 
 
 #import dataset
 bank.data <- read_delim("datasets/bank-full.csv",";", escape_double = FALSE, trim_ws = TRUE)
+# small datset for computationaly intensive tasks
+bank_small <- read_delim("C:/Users/adity/Desktop/Statistics/141/STA141_FinalProject/datasets/bank.csv", 
+    ";", escape_double = FALSE, trim_ws = TRUE)
 #clean NA vaules
 bank.data = na.omit(bank.data)
 #look at sample of our dataset
@@ -510,7 +514,7 @@ b_sixth_run <- drop1(glm(as.factor(y)~job+marital+education+housing+loan+contact
 #Final mode: (y) ~ job + marital + education + housing + loan + contact + day + month + duration + campaign + poutcome
 #Dropped age, default, pdays, previous, balance.
 ```
-Perform feature selection using likelihood ratio test (comparing a certain coeffeicient vs. it to be zero) to prune down model at alpha = 0.05. We find the largest p value at each step to drop the variable. After 6 steps, we have dropped age, default, previous, and balance from our model. All variables at the sixth run have p value significant at 5% significance level, so we stop our test. The final model is (y) ~ job + marital + education + housing + loan + contact + day + month + duration + campaign + poutcome. 
+Perform feature selection using likelihood ratio test (comparing a certain coefficient vs. it to be zero) to prune down model at alpha = 0.05. We find the largest p value at each step to drop the variable. After 6 steps, we have dropped age, default, previous, and balance from our model. All variables at the sixth run have p value significant at 5% significance level, so we stop our test. The final model is (y) ~ job + marital + education + housing + loan + contact + day + month + duration + campaign + poutcome. 
 
 
 ### Forward Stepwise Model Selection Using LRT
