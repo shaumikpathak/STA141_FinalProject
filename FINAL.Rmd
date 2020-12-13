@@ -391,31 +391,28 @@ b_BIC <- step(glm(y~., binomial, lr.bank.data),
 ```
 According to this criteria, we excluded education, balance, previous, default, age, pdays, and job. Our model is y ~ duration + poutcome + month + contact + housing + campaign + marital + loan + day. Which is the same as Forward Selection using BIC. 
 
-## bothward AIC
-```{r, message=FALSE, warning = FALSE}
+## Both Directions Using AIC
+```{r, message=FALSE, warning = FALSE, echo = FALSE}
 both_AIC <- step(glm(y~1, binomial, lr.bank.data),
      scope = ~age+job+marital+education+default+balance+housing+loan+contact+day+month+duration+campaign+pdays+previous+poutcome,
      direction = "both")
+both_AIC
 #pdays, default, age, previous
 #y ~ duration + poutcome + month + contact + housing + job + campaign + loan + marital + day + education + balance
 ```
+Here, we exclude pdays, default, age, and previous. Our model is y ~ duration + poutcome + month + contact + housing + job + campaign + loan + marital + day + education + balance. 
 
-## bothward BIC
-```{r, message=FALSE, warning = FALSE}
+## Both Directions Using BIC
+```{r, message=FALSE, warning = FALSE, echo = FALSE}
 both_BIC <- step(glm(y~1, binomial, lr.bank.data),
      scope = ~age+job+marital+education+default+balance+housing+loan+contact+day+month+duration+campaign+pdays+previous+poutcome,
      direction = "both",
      k = log(dim(lr.bank.data)[1]))
-
+both_BIC
 #y ~ duration + poutcome + month + contact + housing + campaign + marital + loan + day
 #education, balance, previous, default, age, pdays, job
 ```
-
-For logistic regression, we use both forward and backward stepwise selection using AIC as our selection criteria. Although using the Liklihood Ratio Test(LRT) also works, we believe the using a proper parameter such as AIC or BIC would be more robust than using a LRT. Furthermore, we choose to use AIC over BIC. The reason is that we don't mind having a more comlicated model to give us better predictive performance, rather than having a small model as selected by the BIC (which is simple and better for inference as compared to a model selected by BIC.)
-
-Ultimately, we see that all all 3 stepwise selections (backward, forward, both) using AIC yield the exact same model. We have dropped pdays, default, age, and previous. Our final logistic regression model would be
-
-*y ~ duration + poutcome + month + contact + housing + job + campaign + loan + marital + day + education + balance*
+Here, we exclude education, balance, previous, default, age, pdays, and job. Our model is y ~ duration + poutcome + month + contact + housing + campaign + marital + loan + day. 
 
 ## Confusion matrix
 ```{r}
