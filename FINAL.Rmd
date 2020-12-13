@@ -22,6 +22,7 @@ library(randomForest)
 require(caTools)
 library(rpart)
 
+
 #import dataset
 bank.data <- read_delim("datasets/bank-full.csv",";", escape_double = FALSE, trim_ws = TRUE)
 #clean NA vaules
@@ -210,10 +211,29 @@ Finally, we will compare the two and see how the models compare to each other, a
 
 # 3. Extra-Credit Methods
 
-1. 
+## First Method: Stepwise (Forward, Backward, Both) Variable Selection using AIC, BIC, and Likelihood Ratio Test (LRT) for our Logistic Regression Model. Specifically, we have computed results for: 
+
+  1. LRT Forward - at 5% significance level, dropped variables *age*, *default*, *pdays*, *previous*, and *balance*.
+  
+  2. LRT Backward - same dropped variables as above.
+  
+  3. AIC Forward - dropped variables *previous*, *pdays*, *default*, *age*.
+  
+  4. AIC Backward - same dropped variables as above. 
+  
+  5. AIC Both
+  
+  6. BIC Forward
+  
+  7. BIC Backward
+  
+  8. BIC Both
+
+2. 
 
 
 # Logistic regression & Model Selection - Charles
+
 ```{r, message=FALSE, warning = FALSE}
 #make copy of data
 lr.bank.data <- bank.train
