@@ -9,7 +9,7 @@ output:
 
 ```{r, message=FALSE, warning = FALSE, echo=FALSE}
 #setup
-set.seed(123)
+set.seed(1984)
 library(readr)
 library(tidyverse)
 library(fastDummies)
@@ -77,8 +77,11 @@ In this report, we would be covering most of those steps. Our primary goal is to
 While our main goal is to build a classification model and assist with bank marketing efforts, we would also like to conduct an exploratory data analysis (EDA) to explore relationships between different input variables. We would report any useful insights along the way, which covers both the "descriptive" and "diagnostic" parts of the four steps of advanced analytics as mentioned in the article.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 *[1] Lopez, R. (2020). Customer segmentation using machine learning. Retrieved December 12, 2020, from https://www.neuraldesigner.com/blog/customer_segmentation_using_advanced_analytics*
 =======
+=======
+>>>>>>> 7ba676ff7dc1cdb68846d0715ddb0f67d275b02e
 ## 1.2 Data Description
 All variable descriptions are from the UCI machine learning repository from this datset(Bank Marketing Dataset)[2]
 1 - age (numeric)
@@ -113,6 +116,9 @@ All variable descriptions are from the UCI machine learning repository from this
 
 *[1] Lopez, R. (2020). Customer segmentation using machine learning. Retrieved December 12, 2020, from https://www.neuraldesigner.com/blog/customer_segmentation_using_advanced_analytics*
 *[2]Bank Marketing Data Set, [Moro Et Al., 2014] S. Moro, P. Cortez and P. Rita. A Data-Driven Approach to Predict the Success of Bank Telemarketing. Decision Support Systems, Elsevier, 62:22-31, June 2014, archive.ics.uci.edu/ml/datasets/Bank+Marketing.*
+<<<<<<< HEAD
+>>>>>>> 7ba676ff7dc1cdb68846d0715ddb0f67d275b02e
+=======
 >>>>>>> 7ba676ff7dc1cdb68846d0715ddb0f67d275b02e
 
 ## 1.2 Statistical Questions of Interest
@@ -479,10 +485,13 @@ accuracy.log = performance(pred.tune.log, measure = "acc", x.measure = "cutoff")
 plot(accuracy.log)
 plot(perf.tune.log) ##selecting default threshold value of 0.5
 <<<<<<< HEAD
+<<<<<<< HEAD
 auc.log = as.numeric(performance(pred.tune.log, measure = "auc")@y.values)
 auc.log
 acc.log = (performance(pred.tune.log, measure = "acc")@y.values)
 
+=======
+>>>>>>> 7ba676ff7dc1cdb68846d0715ddb0f67d275b02e
 =======
 >>>>>>> 7ba676ff7dc1cdb68846d0715ddb0f67d275b02e
 
