@@ -703,8 +703,7 @@ bank.num %>%
 ```
 The above correlogram is ordered in a first principle component manner. We can see that for the response variable, i.e. Y, the following can be said for its correlation with respect to the predictor variables:
 1.) 
-=======
->>>>>>> 26a0aeb57ddc15d684df017c5af8e7f3de5d2835
+
 
 # Method 2. Random Forest
 The second method that we choose is Random Forest. A Random Forest is a collection of decision trees and average/majority vote of the forest is selected as the predicted output. The reason that we choose it is because a Random Forest model will be less prone to over fitting than a decision tree, and gives a more generalized solution. Random Forest is more robust and accurate than decision trees.
@@ -737,6 +736,28 @@ plot(perf_ROC, main="ROC plot")
 classicitation_accuracy_rf <- (conf_rf[1,1]+conf_rf[2,2])/(sum(conf_rf)); classicitation_accuracy_rf
 ```
 We see that in both cases, duration is the most important variable, whereas default is the least important variable. Additionally, the classification accuracy according to our model is `r classicitation_accuracy_rf`, very close to what we get in our logistic model after AIC variable selection. 
+
+##SVM
+```{r}
+split = sample.split(bank_small$y,SplitRatio = 0.70)
+train.svm = subset(bank_small, split == TRUE)
+test.svm = subset(bank_small, split == FALSE)
+train.svm$y = as.numeric(as.factor(train.svm$y))
+test.svm$y = as.numeric(as.factor(test.svm$y))
+
+svmmodel = svm(y~., data = train.svm, kernel="linear", probability=TRUE, cost = 1, gamma=0.02)
+pred.svm =format(round( predict(svmmodel,test.svm)))
+svm.pred1 = predict(svmmodel,test.svm)
+svm.pred = prediction((predict(svmmodel,test.svm)),test.svm$y)
+svm.perf = performance(svm.pred, "tpr",  "fpr")
+svm.perf.acc = performance(svm.pred, 'acc')
+auc.svm = performance(svm.pred, 'auc')
+auc.svm=auc.svm@y.values[[1]];auc.svm
+plot(svm.perf)
+plot(svm.perf.acc)
+conf.svm = table(pred.svm, as.factor(test.svm$y))
+acc.svm = (conf.svm[1,1]+conf.svm[2,2])/(sum(conf.svm));acc.svm
+```
 
 ##Comparison
 ```{r, message=FALSE, warning = FALSE, echo = FALSE}
