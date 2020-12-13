@@ -417,7 +417,7 @@ bank.num %>%
 The above correlogram is ordered in a first principle component manner. We can see that variables pday and previous contact method are highly correlated. Hence, we can remove these two variables since they bring about multicollinearity to any model we might make in the predictions later. We can further test the variable selection by backward/forward seletion in section 3 of the analysis. 
 
 
-### 2.2.3 Main Analysis
+### 2.2.3 Prediction Models
 
 To answer our question of interest, building a predictive categorial model, we choose to utilize two different methods. 
 
@@ -425,7 +425,17 @@ To answer our question of interest, building a predictive categorial model, we c
 
 2. Random Forest
 
-Finally, we will compare the two and see how the models compare to each other, and select a ultimate winner between the two. 
+Reasons for selecting these 2 predictive techniques:
+
+Logistic regression:
+
+We chose logistic regression as one of the modeling technique we would perform due to a couple of factors.It is relatively easy to implement on categorical data and the parameters can explain  the significance of each predictor variable. However, we still do acknowledge some of the down sides to this modeling technique. Linearity of the variables can affect the accuracy of the model and proper selection of features is required.
+
+Random forest: 
+
+The reason we chose random forest for this predictive model was because random forest is much better than logistic regression at handling multi-colinearity. The random forest model can also deal with categorical data better than the logistic regression can. However, THe logistic regression model does a better job deriving the significance of each of the predictor variables which would give us better incites on the data.
+
+Finally, we will compare the two and see how the models compare to each other, and select a ultimate winner between the two. Our criteria for selecting the model will be based on the accuracy of the model and the AUC of the model.
 
 
 # 3. Extra-Credit Methods
@@ -658,7 +668,7 @@ auc.log
 log.acc = (conf[1,1]+conf[2,2])/(sum(conf)); log.acc
 ```
 
-<<<<<<< HEAD
+
 ### Correlation Analysis
 
 ```{r, message=FALSE, warning = FALSE, echo=FALSE}
@@ -745,6 +755,8 @@ plot(perf_ROC, lwd = 3, colorize = TRUE,
      print.cutoffs.at = seq(0,1, by=0.1))
 abline(0,1,col="red", lty = 2)
 ```
+
+After comparing both of the models by checking the accuracy as well as the AUC, we conclude that the random forest model is more suitable for the prediction model that is required to predict clients that will make a deposit and those who will not make a deposit. The random forest model and the logistic regression model have very similar accuracies with the random forest model having an accuracy of approximately 0.904 while the logistic regression model having an accuracy of approximately 0.902. This means that the random forest method has better predictive capabilities than the logistic regression model.We can also compare the AUC's of the model and see that the logistic regression model has a lower AUC than the random forest model. The logistic regression model has an AUC of 0.904 and the random forest model has an AUC of 0.926 which makes the random forest model better. Therefore, We will choose the Random Forest Model to use for our prediction model.
 
 # Code Appendix
 ```{r, ref.label=knitr::all_labels(),echo=TRUE,eval=FALSE}
