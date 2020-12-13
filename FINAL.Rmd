@@ -24,6 +24,7 @@ library(caret)
 library(randomForest)
 require(caTools)
 library(rpart)
+library(pROC)
 
 
 #import dataset
@@ -569,25 +570,37 @@ varImpPlot(rf)
 #legend("topright", legend = c("OOB", "Test"), pch = 23, col = c("red", "blue"))
 ###############################################################
 
-prediction_rf <- format(predict(rf, newdata = bank.test))
+prediction_rf <- format(predict(rf, newdata = bank.test, type = "response"))
 conf_rf <- table(prediction_rf, as.factor(bank.test$y))
 conf_rf
 
 
 pred3 = predict(rf, newdata = bank.test, type = "response")
-pred.tune.rf = prediction(pred3, bank.test$y)
+pred.tune.rf = prediction(as.numeric(pred3), bank.test$y)
 perf.tune.rf = performance(pred.tune.rf, measure = "tpr", x.measure = "fpr")
 accuracy.rf = performance(pred.tune.rf, measure = "acc", x.measure = "cutoff")
-acc.rf = as.numeric(performance(pred.tune.rf, measure = "acc")@y.values)
+acc.rf = performance(pred.tune.rf, measure = "acc")@y.values
 acc.rf #accuracy
 plot(accuracy.rf)
 plot(perf.tune.rf) 
 auc.rf = as.numeric(performance(pred.tune.rf, measure = "auc")@y.values)
 auc.rf #auc
 
-#Classification accuracy
-(conf[1,1]+conf[2,2])/(sum(conf))
-###
+predictions <- as.data.frame(predict(rf, bank.test, type = "prob"))
+pred.tune.rf = prediction(predictions, bank.test$y)
+perf.tune.rf = performance(pred.tune.rf, measure = "tpr", x.measure = "fpr")
+accuracy.rf = performance(pred.tune.rf, measure = "acc", x.measure = "cutoff")
+acc.rf = performance(pred.tune.rf, measure = "acc")@y.values
+acc.rf #accuracy
+plot(accuracy.rf)
+plot(perf.tune.rf) 
+auc.rf = as.numeric(performance(pred.tune.rf, measure = "auc")@y.values)
+auc.rf #auc
+
+
+
+
+
 #Classification accuracy
 classicitation_accuracy_rf <- (conf_rf[1,1]+conf_rf[2,2])/(sum(conf_rf))
 ```
