@@ -1,6 +1,6 @@
 ---
 title: "STA141A Final Project"
-author: "Animay Sharma, Aditya Kallepalli, Charles Chien, Shaumik Pathak"
+author: "Animay Sharma, Aditya Kallepalli, Charles Chien"
 date: "12/14/2020"
 output:
   html_document:
@@ -519,12 +519,13 @@ varImpPlot(rf)
 #legend("topright", legend = c("OOB", "Test"), pch = 23, col = c("red", "blue"))
 ###############################################################
 
-prediction_rf <- format(predict(rf, bank.test))
+prediction_rf <- format(predict(rf, newdata = bank.test))
 conf_rf <- table(prediction_rf, as.factor(bank.test$y))
 conf_rf
 
-pred3 = predict(prediction_rf, newdata = bank.test, type = "response")
-pred.tune.rf = prediction(pred2, bank.test$y)
+
+pred3 = predict(rf, newdata = bank.test, type = "response")
+pred.tune.rf = prediction(pred3, bank.test$y)
 perf.tune.rf = performance(pred.tune.rf, measure = "tpr", x.measure = "fpr")
 accuracy.rf = performance(pred.tune.rf, measure = "acc", x.measure = "cutoff")
 acc.rf = as.numeric(performance(pred.tune.rf, measure = "acc")@y.values)
@@ -534,6 +535,9 @@ plot(perf.tune.rf)
 auc.rf = as.numeric(performance(pred.tune.rf, measure = "auc")@y.values)
 auc.rf #auc
 
+#Classification accuracy
+(conf[1,1]+conf[2,2])/(sum(conf))
+###
 #Classification accuracy
 classicitation_accuracy_rf <- (conf_rf[1,1]+conf_rf[2,2])/(sum(conf_rf))
 ```
