@@ -9,7 +9,7 @@ output:
 
 ```{r, message=FALSE, warning = FALSE, echo=FALSE}
 #setup
-set.seed(1984)
+set.seed(123)
 library(readr)
 library(tidyverse)
 library(fastDummies)
@@ -151,7 +151,7 @@ ggplot(bank.data, aes(x=bank.data$poutcome,fill=deposit.status)) + geom_bar(posi
 ##Interactive EDA (NOTE: SET TARGET TO y. use install.packages("explore"))
 explore_shiny(bank.data)
 ```
-
+(Note: Stop explore_shiny manually to proceed with remaining code)
 
 A short summary of the Exploratory Data Analysis is as follows:
 
@@ -441,6 +441,8 @@ perf.tune.log = performance(pred.tune.log, measure = "tpr", x.measure = "fpr")
 accuracy.log = performance(pred.tune.log, measure = "acc", x.measure = "cutoff")
 plot(accuracy.log)
 plot(perf.tune.log) ##selecting default threshold value of 0.5
+auc.log = as.numeric(performance(pred.tune.log, measure = "auc")@y.values)
+auc.log
 
 #Classification accuracy
 (conf[1,1]+conf[2,2])/(sum(conf))
@@ -515,6 +517,16 @@ varImpPlot(rf)
 prediction_rf <- format(predict(rf, bank.test))
 conf_rf <- table(prediction_rf, as.factor(bank.test$y))
 conf_rf
+
+pred3 = predict(prediction_rf, newdata = bank.test, type = "response")
+pred.tune.rf = prediction(pred2, bank.test$y)
+perf.tune.rf = performance(pred.tune.rf, measure = "tpr", x.measure = "fpr")
+accuracy.rf = performance(pred.tune.rf, measure = "acc", x.measure = "cutoff")
+acc.rf = as.numeric(performance())
+plot(accuracy.rf)
+plot(perf.tune.rf) 
+auc.rf = as.numeric(performance(pred.tune.rf, measure = "auc")@y.values)
+auc.rf
 
 #Classification accuracy
 classicitation_accuracy_rf <- (conf_rf[1,1]+conf_rf[2,2])/(sum(conf_rf))
