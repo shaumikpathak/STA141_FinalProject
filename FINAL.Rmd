@@ -62,7 +62,7 @@ bank.test = bank.data %>%
   setdiff(bank.train)
 
 bank.test$y <- ifelse(bank.test$y=='yes',1,0)
-bank.train$y <- ifelse(bank.train$y=='yes',1,0)
+
 ```
 
 # 1. Introduction
@@ -262,6 +262,38 @@ housing loan are more likely to deposit with the bank from the marketing channel
 looking at the data for personal loans we can observe that 6.7% of those who said they had a personal loan deposited with the bank while 12.7% percent of those who did not have a personal loan deposited with the bank. We may see this feature in our Logistic regression models as the difference between those that have a loan and do not have a loan is very apparent.
 
 9.) 
+###2.2.2 Correlation Analysis
+```{r, message=FALSE, warning = FALSE}
+bank.num = data.frame(as.numeric(as.factor(bank.data$age)),
+                      as.numeric(as.factor(bank.data$job)),
+                      as.numeric(as.factor(bank.data$marital)),
+                      as.numeric(as.factor(bank.data$education)),
+                      as.numeric(as.factor(bank.data$default)),
+                      as.numeric(as.factor(bank.data$balance)),
+                      as.numeric(as.factor(bank.data$housing)),
+                      as.numeric(as.factor(bank.data$loan)),
+                      as.numeric(as.factor(bank.data$contact)),
+                      as.numeric(as.factor(bank.data$day)),
+                      as.numeric(as.factor(bank.data$month)),
+                      as.numeric(as.factor(bank.data$duration)),
+                      as.numeric(as.factor(bank.data$campaign)),
+                      as.numeric(as.factor(bank.data$pdays)),
+                      as.numeric(as.factor(bank.data$previous)),
+                      as.numeric(as.factor(bank.data$poutcome)),
+                      as.numeric(as.factor(bank.data$y)))
+                      
+colnames(bank.num) = c("Age", "Job", "Marital", "Education", "Default", "Balance", "Housing", " Loan", "Contact", "Day", "Month", "Duration","Campaign", "Pdays", "Previous", "Poutcome","Y")
+
+bank.num %>%
+  cor() %>%
+  corrplot(method = "number",
+           tl.srt = 45,
+           bg = "black",
+           order = "FPC",
+           tl.col = "black",
+           number.cex = 0.5)
+```
+The above correlogram is ordered in a first principle component manner. We can see that variables pday and 
 
 
 ### 2.2.2 Main Analysis
