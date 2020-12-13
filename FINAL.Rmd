@@ -414,17 +414,36 @@ bank.num %>%
 The above correlogram is ordered in a first principle component manner. We can see that for the response variable, i.e. Y, the following can be said for its correlation with respect to the predictor variables:
 1.) 
 
-##Random Forest
-```{r}
-bank.train$y = factor(bank.train$y)
-rf <- randomForest(y ~ ., data = bank.train)
-rf
-names(rf)
+# Random Forest
+a.	Random Forest is a collection of decision trees and average/majority vote of the forest is selected as the predicted output.
+b.	Random Forest model will be less prone to overfitting than Decision tree, and gives a more generalized solution.
+c.	Random Forest is more robust and accurate than decision trees.
+
+i.	Deduct the importance of variables (higher incnodepurity & incMSE more importance)
+ii.	Choose sqrt(p) predictors
+iii.	Use mtry from 1 to p and then use CV
+
+```{r, message=FALSE,warning=FALSE}
+#sample 50% of data as train
+train = sample(1:nrow(bank.data), 22605)
+
+#create random forest model with all variables
+rf <- randomForest(as.factor(y)~ ., data = bank.data, subset = train, importance = TRUE)
+#importance of variables
 importance(rf)
-```
+#plot of importance of variables
+varImpPlot(rf)
 
+oob.err = double(16)                       #Out-of-bag error
+test.err = double(16)                      #Test error
 
-```{r}
-DTmodel <- rpart(y~., data=bank.train, method="class")
-DTmodel
+for(mtry in 1:16){
+  fit = randomForest(as.factor(y) ~., data = bank.data, subset = train, mtry=mtry)
+  oob.err[mtry] = fit$mse[1]
+  pred = predict(fit, bank.data[-train,])
+  test.err[mtry] = with(bank.data[-train,], mean( (y-pred)^2 ))
+}
+
+matplot(1:mtry, cbind(test.err, oob.err), pch = 23, col = c("red", "blue"), type = "b", ylab="Mean Squared Error",xlab="m")
+legend("topright", legend = c("OOB", "Test"), pch = 23, col = c("red", "blue"))
 ```
