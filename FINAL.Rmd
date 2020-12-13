@@ -498,27 +498,6 @@ acc.log = (performance(pred.tune.log, measure = "acc")@y.values)
 #Classification accuracy
 (conf[1,1]+conf[2,2])/(sum(conf))
 ```
-### Animay
-
-```{r, message=FALSE, warning = FALSE}
-
-#Tuning parameters
-pred.tune.log = prediction(pred, bank.test$y)
-perf.tune.log = performance(pred.tune.log, measure = "tpr", x.measure = "fpr")
-accuracy.log = performance(pred.tune.log, measure = "acc", x.measure = "cutoff")
-plot(accuracy.log)
-plot(perf.tune.log) ##selecting default threshold value of 0.5
-
-
-pred.cutoff = cut(logistic.pred, c(-Inf, 0.5, Inf), labels = c("No","Yes"))
- 
-##Confusion
-glmconf = table(pred.cutoff, bank.test$y)
-summary(pred.cutoff)
-acc.logistic = (glmconf[1,1]+glmconf[2,2])/(sum(glmconf))
-```
--Accuracy = TP+TN/(TP+TN+FP+FN)
-Thus accuracy = `r acc.logistic`
 
 ### Correlation Analysis
 
