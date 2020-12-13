@@ -262,8 +262,46 @@ both_BIC <- step(glm(y~1, binomial, lr.bank.data),
 #y ~ duration + poutcome + month + contact + housing + campaign + marital + loan + education + day
 ```
 
+##Random Forest
+
+```{r}
+# Install the dependencies and required libs
+library(randomForest)
+require(caTools)
+```
 
 
+```{r}
+# head(bank.data)
+
+# split the dataset into train and test
+sample = sample.split(bank.data$y, SplitRatio = .75)
+train = subset(bank.data, sample == TRUE)
+test  = subset(bank.data, sample == FALSE)
+
+```
 
 
+```{r}
+train$y = factor(train$y)
+rf <- randomForest(y ~ ., data = train)
+```
+
+
+```{r}
+rf
+names(rf)
+importance(rf)
+```
+
+
+```{r}
+
+library(rpart)
+DTmodel <- rpart(y~., data=train, method="class")
+DTmodel
+```
+
+```{r}
+```
 
