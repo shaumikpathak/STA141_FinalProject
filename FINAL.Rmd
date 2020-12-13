@@ -607,9 +607,9 @@ We see that in both cases, duration is the most important variable, whereas defa
 ##Comparison
 ```{r}
 comparison.table = data.frame(Method = c('Random Forest', 'Logistic Regression'), Accuracy = NA, AUC = NA )
-comparison.table$Accuracy = c(log.acc, classicitation_accuracy_rf)
-comparison.table$AUC = c(auc.log, AUC)
-kable_styling(kable(compare),c("striped","bordered"), full_width = F)
+comparison.table$Accuracy = c(classicitation_accuracy_rf, log.acc)
+comparison.table$AUC = c(AUC, auc.log)
+kable(comparison.table)
 ```
 
 # Code Appendix
