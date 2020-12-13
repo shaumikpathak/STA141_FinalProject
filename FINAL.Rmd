@@ -32,7 +32,7 @@ library(e1071)
 #import dataset
 bank.data <- read_delim("datasets/bank-full.csv",";", escape_double = FALSE, trim_ws = TRUE)
 # small datset for computationaly intensive tasks
-bank_small <- read_delim("C:/Users/adity/Desktop/Statistics/141/STA141_FinalProject/datasets/bank.csv", 
+bank_small <- read_delim("datasets/bank.csv", 
     ";", escape_double = FALSE, trim_ws = TRUE)
 #clean NA vaules
 bank.data = na.omit(bank.data)
@@ -762,6 +762,25 @@ plot(svm.perf.acc)
 conf.svm = table(pred.svm, as.factor(test.svm$y))
 acc.svm = (conf.svm[1,1]+conf.svm[2,2])/(sum(conf.svm));acc.svm
 ```
+## SVM Interpretation
+
+Support Vector Machine is a very popular classification technique used in Machine Learning. It is widely used due to having a significant accuracy. However, this type of model is commonly used for relatively smaller datasets. We mainly decided to use SVM becuase of the significant accuracy that is usually obtained from this model. 
+
+For the SVM model, we decided to use a relatively smaller subset of the actual dataset. This was because it is computationally costly to run SVM and since this was a very huge dataset, it made more sense to use the subset of the dataset which we named "bank_small".
+
+The accuracy that we obtained from running this model on the "bank_small" is `r acc.svm`. We can see that this is less than the accuracy of the logistic regression model that we trained which was `r acc.log`. Additionally, we found that it was also less than the classification accuracy of the random forest model which is `r classification_accuracy`.
+
+Moreover, from doing additional computation, we found out the Area Under the Curve for the ROC curve for each of the models. This area told us how much each of the models is capable of distinguishing between each of the classes. The AUC we got for the SVM model is `r auc.svm` as compared to the Logistic Regression AUC which was `r auc.log`.
+
+Additionally, after doing some computation for precision score, we found out that the precision score for SVM model is .9016. We found this out by doing (True Positive)/(True Positive + False Positive). As compared to this, the precision score for Logistic Regression model is 0.917958. So we see that the precision score is higher for the Logistic Regression model as compared to the SVM. 
+
+By looking at all these scores and comparing them with the different model that we had, we came to a conclusion that for this particular dataset, SVM is not the best model.
+
+```{r}
+conf
+```
+
+
 
 ##Comparison
 ```{r, message=FALSE, warning = FALSE, echo = FALSE}
