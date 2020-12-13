@@ -741,9 +741,12 @@ svm.pred1 = predict(svmmodel,test.svm)
 svm.pred = prediction((predict(svmmodel,test.svm)),test.svm$y)
 svm.perf = performance(svm.pred, "tpr",  "fpr")
 svm.perf.acc = performance(svm.pred, 'acc')
+auc.svm = performance(svm.pred, 'auc')
+auc.svm=auc.svm@y.values[[1]];auc.svm
 plot(svm.perf)
+plot(svm.perf.acc)
 conf.svm = table(pred.svm, as.factor(test.svm$y))
-acc.svm = (conf.svm[1,1]+conf.svm[2,2])/(sum(conf.svm))
+acc.svm = (conf.svm[1,1]+conf.svm[2,2])/(sum(conf.svm));acc.svm
 ```
 
 ##Comparison
