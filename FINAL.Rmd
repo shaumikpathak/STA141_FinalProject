@@ -424,26 +424,19 @@ ii.	Choose sqrt(p) predictors
 iii.	Use mtry from 1 to p and then use CV
 
 ```{r, message=FALSE,warning=FALSE}
-#sample 50% of data as train
-train = sample(1:nrow(bank.data), 22605)
-
-#create random forest model with all variables
-rf <- randomForest(as.factor(y)~ ., data = bank.data, subset = train, importance = TRUE)
+#create random forest model with all variables, mtry = sqrt(p) for classification
+rf <- randomForest(as.factor(y)~ ., data = bank.train, importance = TRUE, mtry = sqrt(dim(bank.train)[2]-1), ntree = 500)
 #importance of variables
 importance(rf)
 #plot of importance of variables
 varImpPlot(rf)
 
-oob.err = double(16)                       #Out-of-bag error
-test.err = double(16)                      #Test error
+#duration is the most important variable, default is the least important
 
-for(mtry in 1:16){
-  fit = randomForest(as.factor(y) ~., data = bank.data, subset = train, mtry=mtry)
-  oob.err[mtry] = fit$mse[1]
-  pred = predict(fit, bank.data[-train,])
-  test.err[mtry] = with(bank.data[-train,], mean( (y-pred)^2 ))
-}
+prediction_rf <- format(predict(rf, bank.test))
+conf_rf <- table(prediction_rf, as.factor(bank.test$y))
+conf_rf
 
-matplot(1:mtry, cbind(test.err, oob.err), pch = 23, col = c("red", "blue"), type = "b", ylab="Mean Squared Error",xlab="m")
-legend("topright", legend = c("OOB", "Test"), pch = 23, col = c("red", "blue"))
+#Classification accuracy
+(conf_rf[1,1]+conf_rf[2,2])/(sum(conf_rf))
 ```
