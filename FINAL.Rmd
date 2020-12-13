@@ -353,38 +353,43 @@ Not surprisingly, backward and forward stepwise using LRT yield same results. We
 f_AIC <- step(glm(y~1, binomial, lr.bank.data),
      scope = ~age+job+marital+education+default+balance+housing+loan+contact+day+month+duration+campaign+pdays+previous+poutcome,
      direction = "forward")
+f_AIC
 #previous, pdays, default, age
 # y ~ duration + poutcome + month + contact + housing + job + campaign + loan + marital + education + day + balance
 ```
 According to this criteria, we excluded previous, pdays, default, and age. Our model is y ~ duration + poutcome + month + contact + housing + job + campaign + loan + marital + education + day + balance. 
 
-## Forward BIC - simple - good for inference
-```{r, message=FALSE, warning = FALSE}
+## Forward Selection Using BIC - (More penalize on larger models, builds simpler models, less complicated and better for inference)
+```{r, message=FALSE, warning = FALSE, echo = FALSE}
 f_BIC <- step(glm(y~1, binomial, lr.bank.data),
      scope = ~age+job+marital+education+default+balance+housing+loan+contact+day+month+duration+campaign+pdays+previous+poutcome,
      direction = "forward",
      k = log(dim(lr.bank.data)[1]))
+f_BIC
 #education, balance, previous, default, age, pdays, job
 #y ~ duration + poutcome + month + contact + housing + campaign + marital + loan + day
 ```
 According to this criteria, we excluded education, balance, previous, default, age, pdays, and job. Our model is y ~ duration + poutcome + month + contact + housing + campaign + marital + loan + day.
 
-## Backward AIC - AIC give more complicated model, better predictive performance
-```{r, message=FALSE, warning = FALSE}
+## Backward Selection Using AIC
+```{r, message=FALSE, warning = FALSE, echo = FALSE}
 b_AIC <- step(glm(y~., binomial, lr.bank.data),
      direction = "backward")
 #pdays, default, age, previous
 # y ~ job + marital + education + balance + housing + loan + contact + day + month + duration + campaign + poutcome
+b_AIC
 ```
+According to this criteria, we excluded previous, pdays, default, and age. Our model is y ~ duration + poutcome + month + contact + housing + job + campaign + loan + marital + education + day + balance. Which is the same as Forward Selection using AIC.
 
-## Backward BIC - simple - good for inference
-```{r, message=FALSE, warning = FALSE}
+## Backward Selection Using BIC
+```{r, message=FALSE, warning = FALSE, echo = FALSE}
 b_BIC <- step(glm(y~., binomial, lr.bank.data),
      direction = "backward",
      k = log(dim(lr.bank.data)[1]))
 #education, balance, previous, default, age, pdays, job
 #y ~ marital + housing + loan + contact + day + month + duration + campaign + poutcome
 ```
+According to this criteria, we excluded education, balance, previous, default, age, pdays, and job. Our model is y ~ duration + poutcome + month + contact + housing + campaign + marital + loan + day. Which is the same as Forward Selection using BIC. 
 
 ## bothward AIC
 ```{r, message=FALSE, warning = FALSE}
