@@ -358,22 +358,6 @@ conf = table(predict(logistic.model, newdata = bank.test, type = "response")$cla
 confusionMatrix(data = as.numeric(pred>0.5), reference = as.factor(bank.test$y))
 ```
 
-##Random Forest
-```{r}
-# Install the dependencies and required libs
-library(randomForest)
-require(caTools)
-```
-
-```{r}
-# head(bank.data)
-
-# split the dataset into train and test
-sample = sample.split(bank.data$y, SplitRatio = .75)
-train = subset(bank.data, sample == TRUE)
-test  = subset(bank.data, sample == FALSE)
-
-```
 
 ```{r}
 train$y = factor(train$y)
