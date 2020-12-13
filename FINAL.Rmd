@@ -498,7 +498,6 @@ plot(accuracy.log)
 plot(perf.tune.log) ##selecting default threshold value of 0.5
 auc.log = as.numeric(performance(pred.tune.log, measure = "auc")@y.values)
 auc.log
-roc = performance
 
 #Classification accuracy
 (conf[1,1]+conf[2,2])/(sum(conf))
@@ -586,8 +585,9 @@ plot(perf.tune.rf)
 auc.rf = as.numeric(performance(pred.tune.rf, measure = "auc")@y.values)
 auc.rf #auc
 
-predictions <- as.data.frame(predict(rf, bank.test, type = "prob"))
-pred.tune.rf = prediction(predictions, bank.test$y)
+
+predictions <- predict(rf, newdata = bank.test, type = "prob")
+pred.tune.rf = prediction(as.numeric(predictions), bank.test$y)
 perf.tune.rf = performance(pred.tune.rf, measure = "tpr", x.measure = "fpr")
 accuracy.rf = performance(pred.tune.rf, measure = "acc", x.measure = "cutoff")
 acc.rf = performance(pred.tune.rf, measure = "acc")@y.values
@@ -596,9 +596,6 @@ plot(accuracy.rf)
 plot(perf.tune.rf) 
 auc.rf = as.numeric(performance(pred.tune.rf, measure = "auc")@y.values)
 auc.rf #auc
-
-
-
 
 
 #Classification accuracy
