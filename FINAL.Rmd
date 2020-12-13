@@ -6,6 +6,7 @@ output:
   html_document:
     df_print: paged
 ---
+
 ```{r, message=FALSE, warning = FALSE, echo=FALSE}
 #setup
 set.seed(1984)
@@ -18,12 +19,6 @@ library(dplyr)
 library(explore)
 library(corrplot)
 library(ROCR)
-
-#bank_full <- read_delim("datasets/bank-full.csv", 
-  #  ";", escape_double = FALSE, trim_ws = TRUE)
-#View(bank_full)
-bank.data = bank_full
-
 library(cutpointr)
 library(caret)
 library(randomForest)
@@ -40,22 +35,22 @@ bank.data = na.omit(bank.data)
 head(bank.data)
 
 # modifying data set
-cat_data = data.frame(bank.data$job,bank.data$marital,bank.data$education)
-bin_cat_data = dummy_cols(cat_data)
-bin_cat_data = bin_cat_data %>% select(4:22)
+#cat_data = data.frame(bank.data$job,bank.data$marital,bank.data$education)
+#bin_cat_data = dummy_cols(cat_data)
+#bin_cat_data = bin_cat_data %>% select(4:22)
 
-yesno_data = data.frame(bank.data$default,bank.data$housing,bank.data$loan,bank.data$y)
-yesno_data$bank.data.default <- revalue(yesno_data$bank.data.default, c("yes"=1))
-yesno_data$bank.data.default <- revalue(yesno_data$bank.data.default, c("no"=0))
-yesno_data$bank.data.housing <- revalue(yesno_data$bank.data.housing, c("yes"=1))
-yesno_data$bank.data.housing <- revalue(yesno_data$bank.data.housing, c("no"=0))
-yesno_data$bank.data.loan <- revalue(yesno_data$bank.data.loan, c("yes"=1))
-yesno_data$bank.data.loan <- revalue(yesno_data$bank.data.loan, c("no"=0))
-yesno_data$bank.data.y <- revalue(yesno_data$bank.data.y, c("yes"=1))
-yesno_data$bank.data.y <- revalue(yesno_data$bank.data.y, c("no"=0))
-remaining_data = bank.data %>% select(1,6,9,10,11,12,13,14,15,16)
-master_bin_data = cbind(bin_cat_data,yesno_data,remaining_data)
-head(master_bin_data)
+#yesno_data = data.frame(bank.data$default,bank.data$housing,bank.data$loan,bank.data$y)
+#yesno_data$bank.data.default <- revalue(yesno_data$bank.data.default, c("yes"=1))
+#yesno_data$bank.data.default <- revalue(yesno_data$bank.data.default, c("no"=0))
+#yesno_data$bank.data.housing <- revalue(yesno_data$bank.data.housing, c("yes"=1))
+#yesno_data$bank.data.housing <- revalue(yesno_data$bank.data.housing, c("no"=0))
+#yesno_data$bank.data.loan <- revalue(yesno_data$bank.data.loan, c("yes"=1))
+#yesno_data$bank.data.loan <- revalue(yesno_data$bank.data.loan, c("no"=0))
+#yesno_data$bank.data.y <- revalue(yesno_data$bank.data.y, c("yes"=1))
+#yesno_data$bank.data.y <- revalue(yesno_data$bank.data.y, c("no"=0))
+#remaining_data = bank.data %>% select(1,6,9,10,11,12,13,14,15,16)
+#master_bin_data = cbind(bin_cat_data,yesno_data,remaining_data)
+#head(master_bin_data)
 
 #create test and train dataset
 bank.train = bank.data %>%
@@ -100,7 +95,9 @@ We would first start by conducting an Exploratory Categorical Data Analysis (EDA
 The target population of this analysis would be all customers of banks in Portugal. We believe that sample from this particular Portuguese bank would be representative of all banks in Portugal. 
 
 ## 2.2 Statistical Analysis
+
 ### 2.2.1 Descriptive Analysis
+
 ```{r, echo = FALSE}
 summary(bank.data)
 deposit.status = bank.data$y         
@@ -155,6 +152,7 @@ ggplot(bank.data, aes(x=bank.data$poutcome,fill=deposit.status)) + geom_bar(posi
 explore_shiny(bank.data)
 
 ```
+
 A short summary of the Exploratory Data Analysis is as follows:
 
 1.) Mean Age: 40.936
@@ -209,6 +207,7 @@ From the distribution plot we see that customers with a balance of 3000-6000 acc
 
 
 ### 2.2.2 Main Analysis
+
 To answer our question of interest, building a predictive categorial model, we choose to utilize two different methods. 
 
 1. Logistic regression, particularly using different stepwise methods (backward, forward, both) and different selection criteria (Likelihood-Ratio Test, AIC, BIC) to conduct variable selection for building the most effective model.
@@ -230,20 +229,30 @@ Finally, we will compare the two and see how the models compare to each other, a
   
   4. AIC Backward - same dropped variables as above. 
   
-  5. AIC Both
+  5. AIC Both - same dropped variables as above.
   
-  6. BIC Forward
+  6. BIC Forward - dropped variables *education*, *balance*, *previous*, *default*, *age*, *pdays*, and *job*
   
-  7. BIC Backward
+  7. BIC Backward - same dropped variables as above.
   
-  8. BIC Both
+  8. BIC Both - same dropped variables as above.
+  
+  
 
-2. 
+Ultimately, we see that all all 3 stepwise selections (backward, forward, both) using AIC yield the exact same model. We have dropped pdays, default, age, and previous. Our final logistic regression model would be:
+
+*y ~ duration + poutcome + month + contact + housing + job + campaign + loan + marital + day + education + balance*
+
+The reason we think AIC is the most robust and appropriate and do not use LRT nor BIC is because firstly, a Likelihood Ratio Test only provides a "heauristic model selection," it's main purpose is not for variable selection but just a quick and convinient way of selecting variables. We chose to select variables at a 5% significance level, but this selection is in fact trivial. If we chose a different alpha level such as 1% or 10%, our variables would be different. Therefore, it is an inferior choice as compared to AIC and BIC.
+
+While AIC and BIC are both robust parameters, for the purposes of answering this statistical question of interest, we choose AIC over BIC. BIC usually penalizes complicated models more than AIC. Naturally, AIC would create a more complicated model (with more predictors) yet it is actually better for prediction. Models built using BIC would be less complicated, which would be betteer for inference, but worse than AIC in terms of predictive performance. 
+
+## Second Method: 
 
 
 # Logistic regression & Model Selection - Charles
 
-```{r, message=FALSE, warning = FALSE}
+```{r, message = FALSE, warning = FALSE}
 #make copy of data
 lr.bank.data <- bank.train
 
