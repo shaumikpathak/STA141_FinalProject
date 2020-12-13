@@ -342,7 +342,6 @@ f_twelve_run <- add1(glm(as.factor(y)~duration+poutcome+month+contact+housing+jo
 #Dropped age, default, pdays, previous, balance.
 ```
 
-
 Perform feature selection using likelihood ratio test (comparing a certain coeffeicient vs. it to be zero) to prune down model at alpha = 0.05. We find the smallest p value at each step to add the variable. After 12 steps, we have added job, marital, education, housing, loan, contact, day, month, duration, campaign, and poutcome to our model. All variables at the twelveth run have p value insignificant at 5% significance level, so we stop our test. The final model is (y) ~ job + marital + education + housing + loan + contact + day + month + duration + campaign + poutcome. We have left out age, default, pdays, previous, and balance. 
 
 Not surprisingly, backward and forward stepwise using LRT yield same results. We have excluded age, default, balance, pdays, and previous from our model, and the model selected from LRT is 
@@ -415,13 +414,19 @@ both_BIC
 ```
 Here, we exclude education, balance, previous, default, age, pdays, and job. Our model is y ~ duration + poutcome + month + contact + housing + campaign + marital + loan + day. 
 
-## Confusion matrix
+## Building a Confusion Matrix with our final logistic regression model
+Again, our final model is the one with variables selected from AIC. 
+
+y ~ duration + poutcome + month + contact + housing + job + campaign + loan + marital + day + education + balance
+
+The confusion matrix and our classification accuracy with this model are below.
+
 ```{r}
 #Build logistic model with selected significant variables using AIC stepwise variable selection
 logistic.model.AIC <- glm(y ~ duration + poutcome + month + contact + housing + job + campaign + loan + marital + day + education + balance, binomial(link = "logit"),lr.bank.data)
 
 pred = format(round(predict(logistic.model.AIC, newdata = bank.test, type = "response")))
-conf = table(pred, as.factor(bank.test$y))
+conf = table(pred, as.factor(bank.test$y));conf
 #Classification accuracy
 (conf[1,1]+conf[2,2])/(sum(conf))
 ```
