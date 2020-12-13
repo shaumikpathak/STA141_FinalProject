@@ -133,7 +133,6 @@ The target population of this analysis would be all customers of banks in Portug
 ```{r}
 summary(bank.data)
 deposit.status = bank.data$y 
-table(bank.data$housing, bank.data$y)
 
 #Age
 ggplot(bank.data,aes(x=bank.data$age,fill=deposit.status)) + geom_histogram(binwidth=1) +
@@ -240,8 +239,10 @@ From the distribution plot we see that customers with a balance of 3000-6000 acc
 55.6% of the data do have housing loans, which leaves the remaining 44.4% of the data that does not have housing loans. Of those who had a housing loan, Only 36.6% have deposited with the bank, while of those who did not have a housing loan 63.4% have deposited with the bank. Looking at this we can say that those without a
 housing loan are more likely to deposit with the bank from the marketing channels.
 
-8.)
+8.) Contact
+For those contacted by telephone the percentage of those who deposited were 13.4% while those contacted through cellphone were slightly more likely to have deposited with a percentage of 14.9%
 
+9.)Personal Loan
 
 
 ### 2.2.2 Main Analysis
