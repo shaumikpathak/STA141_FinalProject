@@ -2,7 +2,9 @@
 title: "STA141A Final Project"
 author: "Animay Sharma, Aditya Kallepalli, Charles Chien, Shaumik Pathak"
 date: "12/14/2020"
-output: pdf_document
+output:
+  html_document:
+    df_print: paged
 ---
 
 # 1. Introduction
@@ -46,7 +48,7 @@ library(ROCR)
 #bank_full <- read_delim("datasets/bank-full.csv", 
   #  ";", escape_double = FALSE, trim_ws = TRUE)
 #View(bank_full)
-bank_test <- read_delim("Desktop/STA 141A Final /bank.csv", 
+bank_test <- read_delim("/Users/shaumikpathak/Desktop/UCDAVIS/Fall Quarter 2020/STA 141a/STA141_FinalProject/Datasets/bank.csv", 
     ";", escape_double = FALSE, trim_ws = TRUE)
 View(bank_test)
 bank.data = bank_full
@@ -400,24 +402,18 @@ test  = subset(bank.data, sample == FALSE)
 
 ```{r}
 train$y = factor(train$y)
+# apply the model to the train data to get the predicted result
 rf <- randomForest(y ~ ., data = train)
+
+summary(rf)
 ```
 
 
 ```{r}
 rf
-names(rf)
-importance(rf)
+# names(rf)
+# importance(rf)
 ```
 
-
-```{r}
-
-library(rpart)
-DTmodel <- rpart(y~., data=train, method="class")
-DTmodel
-```
-
-```{r}
-```
+We can see from the above random forest model that the 
 
