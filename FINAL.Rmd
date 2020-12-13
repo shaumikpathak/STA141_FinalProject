@@ -88,10 +88,10 @@ To answer the primary scientific question of interest, we would fit our model in
 We would then use both backward and forward stepwise model selection using a likelihood ratio test (LRT) to conduct a heauristic model selection and prune down our model. We would also use AIC and BIC and compare the results of those with LRT. We would also use cross validation (CV) to obtain more robust results. Lastly we will choose between the two and select the better one using with better accuracy to be our final candidate.
 
 # 2. Analysis Plan
-We would first start by conducting an Exploratory Categorical Data Analysis (EDA) to evaluate the relationship between different variables. This would provide a descriptive story as to answering the most basic question like "what happened?" Then, we would start building our classification model using two methods.
+We would first start by conducting an Exploratory Categorical Data Analysis (EDA) to evaluate the relationship between different variables to the response variable. This would provide a descriptive story as to answering the most basic question like "what happened?" Then, we would start building our classification model using two methods.
 
 ## 2.1 Population and Study Design
-The target population of this analysis would be all customers of banks in Portugal. We believe that sample from this particular Portuguese bank would be representative of all banks in Portugal. 
+The target population of this analysis would be all customers of banks in Portugal. We believe that sample from this particular Portuguese bank would be representative of all banks in Portugal. To Build the models we are using a dataset with 50% of the data. The other 50% will be used to for testing the accuracy of the models. This will help us assess which model is better at categorizing the data.
 
 ## 2.2 Statistical Analysis
 
@@ -99,7 +99,8 @@ The target population of this analysis would be all customers of banks in Portug
 
 ```{r}
 summary(bank.data)
-deposit.status = bank.data$y         
+deposit.status = bank.data$y 
+table(bank.data$housing, bank.data$y)
 
 #Age
 ggplot(bank.data,aes(x=bank.data$age,fill=deposit.status)) + geom_histogram(binwidth=1) +
@@ -192,7 +193,7 @@ Summary statistics for educational distribution of the bank's customers are as f
 5.) Defaults:
 98.2% of customers do not default on credit payments. 11.8% of customers who do not default on payments make deposits as compared to 6.4% of customers who default on credit. 
 
-5.) Balance:
+6.) Balance:
 Summary statistics of balance is as follows:
   Minimum balance: -8019
   Maximum balance: 102,127
@@ -202,7 +203,12 @@ Summary statistics of balance is as follows:
   mean: 1362
 From the distribution plot we see that customers with a balance of 3000-6000 account for most customers who deposit money with the bank. 
 
-6.) Housing Loan
+7.) Housing Loan
+55.6% of the data do have housing loans, which leaves the remaining 44.4% of the data that does not have housing loans. Of those who had a housing loan, Only 36.6% have deposited with the bank, while of those who did not have a housing loan 63.4% have deposited with the bank. Looking at this we can say that those without a
+housing loan are more likely to deposit with the bank from the marketing channels.
+
+8.)
+
 
 
 ### 2.2.2 Main Analysis
