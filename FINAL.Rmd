@@ -433,21 +433,30 @@ logistic.model.AIC <- glm(y ~ duration + poutcome + month + contact + housing + 
 
 pred = format(round(predict(logistic.model.AIC, newdata = bank.test, type = "response")))
 conf = table(pred, as.factor(bank.test$y));conf
+
+#Tuning parameters
+pred.tune.log = prediction(pred, bank.test$y)
+perf.tune.log = performance(pred.tune.log, measure = "tpr", x.measure = "fpr")
+accuracy.log = performance(pred.tune.log, measure = "acc", x.measure = "cutoff")
+plot(accuracy.log)
+plot(perf.tune.log) ##selecting default threshold value of 0.5
+
 #Classification accuracy
 (conf[1,1]+conf[2,2])/(sum(conf))
 ```
 ### Animay
 
 ```{r, message=FALSE, warning = FALSE}
+
 #Tuning parameters
-pred.tune.log = prediction(logistic.pred, bank.test$y)
+pred.tune.log = prediction(pred, bank.test$y)
 perf.tune.log = performance(pred.tune.log, measure = "tpr", x.measure = "fpr")
 accuracy.log = performance(pred.tune.log, measure = "acc", x.measure = "cutoff")
 plot(accuracy.log)
-plot(perf.tune.log) ##selecting cut off calue of 0.3
+plot(perf.tune.log) ##selecting default threshold value of 0.5
 
 
-pred.cutoff = cut(logistic.pred, c(-Inf, 0.2, Inf), labels = c("No","Yes"))
+pred.cutoff = cut(logistic.pred, c(-Inf, 0.5, Inf), labels = c("No","Yes"))
  
 ##Confusion
 glmconf = table(pred.cutoff, bank.test$y)
