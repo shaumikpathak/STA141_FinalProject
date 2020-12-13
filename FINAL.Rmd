@@ -28,7 +28,7 @@ To answer the primary scientific question of interest, we would fit our model in
 1. Logistic Regression
 2. Random Forest
 
-We would then use both backward and forward stepwise model selection using a likelihood ratio test (LRT) to conduct a heauristic model selection and prune down our model. We would also use cross validation (CV) to obtain more robust results.
+We would then use both backward and forward stepwise model selection using a likelihood ratio test (LRT) to conduct a heauristic model selection and prune down our model. We would also use AIC and BIC and compare the results of those with LRT. We would also use cross validation (CV) to obtain more robust results. Lastly we will choose between the two and select the better one using with better accuracy to be our final candidate.
 
 # 1.) Setup
 ```{r, message=FALSE, warning = FALSE}
@@ -44,6 +44,9 @@ library(corrplot)
 library(ROCR)
 library(cutpointr)
 library(caret)
+library(randomForest)
+require(caTools)
+library(rpart)
 
 #import dataset
 bank.data <- read_delim("datasets/bank-full.csv",";", escape_double = FALSE, trim_ws = TRUE)
@@ -349,38 +352,16 @@ Ultimately, we see that all all 3 stepwise selections (backward, forward, both) 
 ## Confusion matrix
 ```{r}
 #Build logistic model with selected significant variables using AIC stepwise variable selection
-logistic.model <- glm(y ~ duration + poutcome + month + contact + housing + job + campaign + loan + marital + day + education + balance, binomial(link = "logit"),lr.bank.data)
-pred = predict(logistic.model, newdata = bank.test, type = "response")
+logistic.model.AIC <- glm(y ~ duration + poutcome + month + contact + housing + job + campaign + loan + marital + day + education + balance, binomial(link = "logit"),lr.bank.data)
 
-conf = table(predict(logistic.model, newdata = bank.test, type = "response")$class, bank.test$y)
-(conf[1,1]+conf[2,2])/(sum(conf))
-
-confusionMatrix(data = as.numeric(pred>0.5), reference = as.factor(bank.test$y))
-```
-
-
-```{r}
-train$y = factor(train$y)
-rf <- randomForest(y ~ ., data = train)
-
-z <- lda(AHD ~ ., data = Heart[trainHeart,],prior=c(1,1)/2)
-predict(z, Heart[-trainHeart, ])$class
-# confusion matrix
-z.conf=table(predict(z, Heart[-trainHeart, ])$class,Heart$AHD[-trainHeart])
-z.conf
+pred = format(round(predict(logistic.model.AIC, newdata = bank.test, type = "response")))
+conf = table(pred, as.factor(bank.test$y))
 #Classification accuracy
-(z.conf[1,1]+z.conf[2,2])/(sum(z.conf))
+(conf[1,1]+conf[2,2])/(sum(conf))
 ```
-
 ## Animay
 
 ```{r, message=FALSE, warning = FALSE}
-#Build logistic model with selected significant variables using AIC stepwise variable selection
-logistic.model <- glm(y ~ duration + poutcome + month + contact + housing + job + campaign + loan + marital + day + education + balance, binomial(link = "logit"),lr.bank.data)
-
-#prediction
-logistic.pred = predict(logistic.model, newdata = bank.test, type = 'response')
-
 #Tuning parameters
 pred.tune.log = prediction(logistic.pred, bank.test$y)
 perf.tune.log = performance(pred.tune.log, measure = "tpr", x.measure = "fpr")
@@ -435,35 +416,8 @@ The above correlogram is ordered in a first principle component manner. We can s
 
 ##Random Forest
 ```{r}
-# Install the dependencies and required libs
-library(randomForest)
-require(caTools)
-```
-
-```{r}
-# head(bank.data)
-
-# split the dataset into train and test
-sample = sample.split(bank.data$y, SplitRatio = .75)
-train = subset(bank.data, sample == TRUE)
-test  = subset(bank.data, sample == FALSE)
-
-```
-
-```{r}
-train$y = factor(train$y)
-rf <- randomForest(y ~ ., data = train)
-
-z <- lda(AHD ~ ., data = Heart[trainHeart,],prior=c(1,1)/2)
-predict(z, Heart[-trainHeart, ])$class
-# confusion matrix
-z.conf=table(predict(z, Heart[-trainHeart, ])$class,Heart$AHD[-trainHeart])
-z.conf
-#Classification accuracy
-(z.conf[1,1]+z.conf[2,2])/(sum(z.conf))
-```
-
-```{r}
+bank.train$y = factor(bank.train$y)
+rf <- randomForest(y ~ ., data = bank.train)
 rf
 names(rf)
 importance(rf)
@@ -471,7 +425,6 @@ importance(rf)
 
 
 ```{r}
-library(rpart)
-DTmodel <- rpart(y~., data=train, method="class")
+DTmodel <- rpart(y~., data=bank.train, method="class")
 DTmodel
 ```
