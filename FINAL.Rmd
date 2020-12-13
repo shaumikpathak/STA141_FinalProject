@@ -249,8 +249,8 @@ While AIC and BIC are both robust parameters, for the purposes of answering this
 
 ## Second Method: 
 
-
-# Logistic regression & Model Selection - Charles
+# 4. Results
+# Logistic Regression & Model Selection
 
 ```{r, message = FALSE, warning = FALSE}
 #make copy of data
