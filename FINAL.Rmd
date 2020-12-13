@@ -4,6 +4,59 @@ author: "Animay Sharma, Aditya Kallepalli, Charles Chien, Shaumik Pathak"
 date: "12/14/2020"
 output: pdf_document
 ---
+```{r, message=FALSE, warning = FALSE, echo=FALSE}
+#setup
+set.seed(1984)
+library(readr)
+library(tidyverse)
+library(fastDummies)
+library(knitr)
+library(plyr)
+library(dplyr)
+library(explore)
+library(corrplot)
+library(ROCR)
+library(cutpointr)
+library(caret)
+library(randomForest)
+require(caTools)
+library(rpart)
+
+#import dataset
+bank.data <- read_delim("datasets/bank-full.csv",";", escape_double = FALSE, trim_ws = TRUE)
+#clean NA vaules
+bank.data = na.omit(bank.data)
+#look at sample of our dataset
+head(bank.data)
+
+# modifying data set
+cat_data = data.frame(bank.data$job,bank.data$marital,bank.data$education)
+bin_cat_data = dummy_cols(cat_data)
+bin_cat_data = bin_cat_data %>% select(4:22)
+
+yesno_data = data.frame(bank.data$default,bank.data$housing,bank.data$loan,bank.data$y)
+yesno_data$bank.data.default <- revalue(yesno_data$bank.data.default, c("yes"=1))
+yesno_data$bank.data.default <- revalue(yesno_data$bank.data.default, c("no"=0))
+yesno_data$bank.data.housing <- revalue(yesno_data$bank.data.housing, c("yes"=1))
+yesno_data$bank.data.housing <- revalue(yesno_data$bank.data.housing, c("no"=0))
+yesno_data$bank.data.loan <- revalue(yesno_data$bank.data.loan, c("yes"=1))
+yesno_data$bank.data.loan <- revalue(yesno_data$bank.data.loan, c("no"=0))
+yesno_data$bank.data.y <- revalue(yesno_data$bank.data.y, c("yes"=1))
+yesno_data$bank.data.y <- revalue(yesno_data$bank.data.y, c("no"=0))
+remaining_data = bank.data %>% select(1,6,9,10,11,12,13,14,15,16)
+master_bin_data = cbind(bin_cat_data,yesno_data,remaining_data)
+head(master_bin_data)
+
+#create test and train dataset
+bank.train = bank.data %>%
+  sample_frac(0.5)
+
+bank.test = bank.data %>%
+  setdiff(bank.train)
+
+bank.test$y <- ifelse(bank.test$y=='yes',1,0)
+```
+```
 
 # 1. Introduction
 ## 1.1 Background
@@ -30,55 +83,15 @@ To answer the primary scientific question of interest, we would fit our model in
 
 We would then use both backward and forward stepwise model selection using a likelihood ratio test (LRT) to conduct a heauristic model selection and prune down our model. We would also use AIC and BIC and compare the results of those with LRT. We would also use cross validation (CV) to obtain more robust results. Lastly we will choose between the two and select the better one using with better accuracy to be our final candidate.
 
-# 1.) Setup
-```{r, message=FALSE, warning = FALSE}
-set.seed(1984)
-library(readr)
-library(tidyverse)
-library(fastDummies)
-library(knitr)
-library(plyr)
-library(dplyr)
-library(explore)
-library(corrplot)
-library(ROCR)
-library(cutpointr)
-library(caret)
-library(randomForest)
-require(caTools)
-library(rpart)
+# 2. Analysis Plan
+We would first start by conducting an Exploratory Categorical Data Analysis (EDA) to evaluate the relationship between different variables. This would provide a descriptive story as to answering the most basic question like "what happened?" Then, we would start building our classification model using two methods.
 
-#import dataset
-bank.data <- read_delim("datasets/bank-full.csv",";", escape_double = FALSE, trim_ws = TRUE)
-#clean NA vaules
-bank.data = na.omit(bank.data)
-#look at sample of our dataset
-head(bank.data)
-```
+## 2.1 Population and Study Design
+The target population of this analysis would be all customers of banks in Portugal. We believe that sample from this particular Portuguese bank would be representative of all banks in Portugal. 
 
-## modifying data set
-```{r}
-cat_data = data.frame(bank.data$job,bank.data$marital,bank.data$education)
-bin_cat_data = dummy_cols(cat_data)
-bin_cat_data = bin_cat_data %>% select(4:22)
-
-yesno_data = data.frame(bank.data$default,bank.data$housing,bank.data$loan,bank.data$y)
-yesno_data$bank.data.default <- revalue(yesno_data$bank.data.default, c("yes"=1))
-yesno_data$bank.data.default <- revalue(yesno_data$bank.data.default, c("no"=0))
-yesno_data$bank.data.housing <- revalue(yesno_data$bank.data.housing, c("yes"=1))
-yesno_data$bank.data.housing <- revalue(yesno_data$bank.data.housing, c("no"=0))
-yesno_data$bank.data.loan <- revalue(yesno_data$bank.data.loan, c("yes"=1))
-yesno_data$bank.data.loan <- revalue(yesno_data$bank.data.loan, c("no"=0))
-yesno_data$bank.data.y <- revalue(yesno_data$bank.data.y, c("yes"=1))
-yesno_data$bank.data.y <- revalue(yesno_data$bank.data.y, c("no"=0))
-remaining_data = bank.data %>% select(1,6,9,10,11,12,13,14,15,16)
-master_bin_data = cbind(bin_cat_data,yesno_data,remaining_data)
-head(master_bin_data)
-```
-
-
-## 2.) Exploratory Categorical Data Analysis:
-```{r}
+## 2.2 Statistical Analysis
+### 2.2.1 Descriptive Analysis
+```{r, echo = FALSE}
 summary(bank.data)
 deposit.status = bank.data$y         
 
@@ -184,16 +197,21 @@ From the distribution plot we see that customers with a balance of 3000-6000 acc
 
 6.) Housing Loan
 
-#test and train dataset
-```{r, message=FALSE, warning = FALSE}
-bank.train = bank.data %>%
-  sample_frac(0.5)
 
-bank.test = bank.data %>%
-  setdiff(bank.train)
+### 2.2.2 Main Analysis
+To answer our question of interest, building a predictive categorial model, we choose to utilize two different methods. 
 
-bank.test$y <- ifelse(bank.test$y=='yes',1,0)
-```
+1. Logistic regression, particularly using different stepwise methods (backward, forward, both) and different selection criteria (Likelihood-Ratio Test, AIC, BIC) to conduct variable selection for building the most effective model.
+
+2. Random Forest
+
+Finally, we will compare the two and see how the models compare to each other, and select a ultimate winner between the two. 
+
+
+# 3. Extra-Credit Methods
+
+1. 
+
 
 # Logistic regression & Model Selection - Charles
 ```{r, message=FALSE, warning = FALSE}
@@ -454,4 +472,8 @@ conf_rf
 #Classification accuracy
 classicitation_accuracy_rf <- (conf_rf[1,1]+conf_rf[2,2])/(sum(conf_rf))
 ```
-Classification accuracy is `r classicitation_accuracy_rf`, very close to what we get in logistic after AIC variable selection. 
+Classification accuracy is `r classicitation_accuracy_rf`, very close to what we get in our logistic model after AIC variable selection. 
+
+# Code Appendix
+```{r, ref.label=knitr::all_labels(),echo=TRUE,eval=FALSE}
+```
