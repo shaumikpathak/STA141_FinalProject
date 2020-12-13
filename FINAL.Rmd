@@ -237,8 +237,7 @@ Finally, we will compare the two and see how the models compare to each other, a
   
   8. BIC Both - same dropped variables as above.
   
-  
-
+<span style="color:red"> Note, we tried adding interaction variables but it was too computationally complicated for R and our dataset </span>
 Ultimately, we see that all all 3 stepwise selections (backward, forward, both) using AIC yield the exact same model. We have dropped pdays, default, age, and previous. Our final logistic regression model would be:
 
 *y ~ duration + poutcome + month + contact + housing + job + campaign + loan + marital + day + education + balance*
@@ -252,6 +251,7 @@ While AIC and BIC are both robust parameters, for the purposes of answering this
 # 4. Results
 # Logistic Regression & Model Selection
 
+Here is a summary of a logistic regression model with all the input variables: 
 ```{r, message = FALSE, warning = FALSE}
 #make copy of data
 lr.bank.data <- bank.train
@@ -266,8 +266,8 @@ logistic.model <- glm(as.factor(y)~., binomial(link = "logit"),lr.bank.data)
 summary(logistic.model)
 ```
 
-## Backward stepwise model selection, note tried adding interactions but stack overflow
-```{r, message=FALSE, warning = FALSE}
+## Backward Stepwise Model Selection Using LRT
+```{r, message=FALSE, warning = FALSE, echo = FALSE}
 #perform feature selection using likelihood ratio test (comparing a certain coeffeicient vs. it to be zero) to prune down model. Alpha = 0.05
 b_first_run <- drop1(glm(as.factor(y)~., binomial,lr.bank.data),test="LRT")
 #Find largest p value (larger p value indicates insignificance) to be age, so we drop age from our second run
@@ -284,10 +284,11 @@ b_sixth_run <- drop1(glm(as.factor(y)~job+marital+education+housing+loan+contact
 #Final mode: (y) ~ job + marital + education + housing + loan + contact + day + month + duration + campaign + poutcome
 #Dropped age, default, pdays, previous, balance.
 ```
+Perform feature selection using likelihood ratio test (comparing a certain coeffeicient vs. it to be zero) to prune down model at alpha = 0.05. We find the largest p value at each step to drop the variable. After 6 steps, we have dropped age, default, previous, and balance from our model. All variables at the sixth run have p value significant at 5% significance level, so we stop our test. The final model is (y) ~ job + marital + education + housing + loan + contact + day + month + duration + campaign + poutcome. 
 
 
-## Forward stepwise model selection, note tried adding interactions but stack overflow
-```{r, message=FALSE, warning = FALSE}
+## Forward Stepwise Model Selection Using LRT
+```{r, message=FALSE, warning = FALSE, echo = FALSE}
 #perform feature selection using likelihood ratio test (comparing a certain coeffeicient vs. it to be zero) to prune model. Forward stepwise model selection adds variable with smallest p value each time. Alpha = 0.05
 f_first_run <- add1(glm(as.factor(y)~1, binomial, lr.bank.data),
      scope = ~age+job+marital+education+default+balance+housing+loan+contact+day+month+duration+campaign+pdays+previous+poutcome,
@@ -341,9 +342,13 @@ f_twelve_run <- add1(glm(as.factor(y)~duration+poutcome+month+contact+housing+jo
 #Dropped age, default, pdays, previous, balance.
 ```
 
-Backward and forward stepwise using LRT yield same results. Dropped age, default, balance, pdays, previous
+Perform feature selection using likelihood ratio test (comparing a certain coeffeicient vs. it to be zero) to prune down model at alpha = 0.05. We find the smallest p value at each step to add the variable. After 12 steps, we have added job, marital, education, housing, loan, contact, day, month, duration, campaign, and poutcome to our model. All variables at the twelveth run have p value insignificant at 5% significance level, so we stop our test. The final model is (y) ~ job + marital + education + housing + loan + contact + day + month + duration + campaign + poutcome. We have left out age, default, pdays, previous, and balance. 
 
-## Forward AIC - AIC give more complicated model, better predictive performance
+Not surprisingly, backward and forward stepwise using LRT yield same results. We have excluded age, default, balance, pdays, and previous from our model, and the model selected from LRT is 
+
+(y) ~ job + marital + education + housing + loan + contact + day + month + duration + campaign + poutcome. 
+
+## Forward Selection Using AIC - (Less penalize on larger models, so creates more complicated model, but better predictive performance)
 ```{r, message=FALSE, warning = FALSE}
 f_AIC <- step(glm(y~1, binomial, lr.bank.data),
      scope = ~age+job+marital+education+default+balance+housing+loan+contact+day+month+duration+campaign+pdays+previous+poutcome,
@@ -351,6 +356,7 @@ f_AIC <- step(glm(y~1, binomial, lr.bank.data),
 #previous, pdays, default, age
 # y ~ duration + poutcome + month + contact + housing + job + campaign + loan + marital + education + day + balance
 ```
+According to this criteria, we excluded previous, pdays, default, and age. Our model is y ~ duration + poutcome + month + contact + housing + job + campaign + loan + marital + education + day + balance. 
 
 ## Forward BIC - simple - good for inference
 ```{r, message=FALSE, warning = FALSE}
@@ -361,6 +367,7 @@ f_BIC <- step(glm(y~1, binomial, lr.bank.data),
 #education, balance, previous, default, age, pdays, job
 #y ~ duration + poutcome + month + contact + housing + campaign + marital + loan + day
 ```
+According to this criteria, we excluded education, balance, previous, default, age, pdays, and job. Our model is y ~ duration + poutcome + month + contact + housing + campaign + marital + loan + day.
 
 ## Backward AIC - AIC give more complicated model, better predictive performance
 ```{r, message=FALSE, warning = FALSE}
