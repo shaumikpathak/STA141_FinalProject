@@ -9,7 +9,7 @@ output:
 
 ```{r, message=FALSE, warning = FALSE, echo=FALSE}
 #setup
-set.seed(1984)
+set.seed(123)
 library(readr)
 library(tidyverse)
 library(fastDummies)
@@ -68,7 +68,7 @@ Here, we have a set of marketing data of a banking institution. The data is rela
 
 Among the four datasets provided, we chose to utilize the "bank-full.csv" in this report, with 17 different inputs.
 
-As mentioned in article (Lopez, Customer segmentation using machine learning 2020) [1], data science and machine learning methods are helpful when it comes to helping companies with customer segmentation. Customer targeting is the process of analyzing customer features to select those customers who are more prone to a target product or service. By making intelligent use of data, companies could make a big difference to their competitors. 
+As mentioned in article (Lopez, Customer segmentation using machine learning 2020) [0], data science and machine learning methods are helpful when it comes to helping companies with customer segmentation. Customer targeting is the process of analyzing customer features to select those customers who are more prone to a target product or service. By making intelligent use of data, companies could make a big difference to their competitors. 
 
 Advanced analytics plays a key role when it comes to selecting potentially profitable clients, which allows the design of more effective marketing campaigns. By using the four steps of advanced analytics: descriptive, diagnostic, predictive, and prescriptive, we would be able to answer key questions such as "what happened?", "why did it happen?", "what will happen?", and "how can we make it happen?" 
 
@@ -76,50 +76,7 @@ In this report, we would be covering most of those steps. Our primary goal is to
 
 While our main goal is to build a classification model and assist with bank marketing efforts, we would also like to conduct an exploratory data analysis (EDA) to explore relationships between different input variables. We would report any useful insights along the way, which covers both the "descriptive" and "diagnostic" parts of the four steps of advanced analytics as mentioned in the article.
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-*[1] Lopez, R. (2020). Customer segmentation using machine learning. Retrieved December 12, 2020, from https://www.neuraldesigner.com/blog/customer_segmentation_using_advanced_analytics*
-=======
-=======
->>>>>>> 7ba676ff7dc1cdb68846d0715ddb0f67d275b02e
-## 1.2 Data Description
-All variable descriptions are from the UCI machine learning repository from this datset(Bank Marketing Dataset)[2]
-1 - age (numeric)
-
-2 - job : type of job (categorical: 'admin.','blue-collar','entrepreneur','housemaid','management','retired','self-employed','services','student','technician','unemployed','unknown')
-
-3 - marital : marital status (categorical: 'divorced','married','single','unknown'; note: 'divorced' means divorced or widowed)
-
-4 - education (categorical: 'basic.4y','basic.6y','basic.9y','high.school','illiterate','professional.course','university.degree','unknown')
-
-5 - default: has credit in default? (categorical: 'no','yes','unknown')
-
-6 - housing: has housing loan? (categorical: 'no','yes','unknown')
-
-7 - loan: has personal loan? (categorical: 'no','yes','unknown')
-
-8 - contact: contact communication type (categorical: 'cellular','telephone')# related with the last contact of the current campaign
-
-9 - month: last contact month of year (categorical: 'jan', 'feb', 'mar', ..., 'nov', 'dec')
-
-10 - day_of_week: last contact day of the week (categorical: 'mon','tue','wed','thu','fri')
-
-11 - duration: last contact duration, in seconds (numeric). Important note: this attribute highly affects the output target (e.g., if duration=0 then y='no'). Yet, the duration is not known before a call is performed. Also, after the end of the call y is obviously known. Thus, this input should only be included for benchmark purposes and should be discarded if the intention is to have a realistic predictive model.# other attributes:
-
-12 - campaign: number of contacts performed during this campaign and for this client (numeric, includes last contact)
-
-13 - pdays: number of days that passed by after the client was last contacted from a previous campaign (numeric; 999 means client was not previously contacted)
-
-14 - previous: number of contacts performed before this campaign and for this client (numeric)
-
-15 - poutcome: outcome of the previous marketing campaign (categorical: 'failure','nonexistent','success')
-
-*[1] Lopez, R. (2020). Customer segmentation using machine learning. Retrieved December 12, 2020, from https://www.neuraldesigner.com/blog/customer_segmentation_using_advanced_analytics*
-*[2]Bank Marketing Data Set, [Moro Et Al., 2014] S. Moro, P. Cortez and P. Rita. A Data-Driven Approach to Predict the Success of Bank Telemarketing. Decision Support Systems, Elsevier, 62:22-31, June 2014, archive.ics.uci.edu/ml/datasets/Bank+Marketing.*
-<<<<<<< HEAD
->>>>>>> 7ba676ff7dc1cdb68846d0715ddb0f67d275b02e
-=======
->>>>>>> 7ba676ff7dc1cdb68846d0715ddb0f67d275b02e
+*[0] Lopez, R. (2020). Customer segmentation using machine learning. Retrieved December 12, 2020, from https://www.neuraldesigner.com/blog/customer_segmentation_using_advanced_analytics*
 
 ## 1.2 Statistical Questions of Interest
 
@@ -143,6 +100,7 @@ The target population of this analysis would be all customers of banks in Portug
 ```{r}
 summary(bank.data)
 deposit.status = bank.data$y 
+table(bank.data$housing, bank.data$y)
 
 #Age
 ggplot(bank.data,aes(x=bank.data$age,fill=deposit.status)) + geom_histogram(binwidth=1) +
@@ -193,7 +151,7 @@ ggplot(bank.data, aes(x=bank.data$poutcome,fill=deposit.status)) + geom_bar(posi
 ##Interactive EDA (NOTE: SET TARGET TO y. use install.packages("explore"))
 explore_shiny(bank.data)
 ```
-
+(Note: Stop explore_shiny manually to proceed with remaining code)
 
 A short summary of the Exploratory Data Analysis is as follows:
 
@@ -249,10 +207,8 @@ From the distribution plot we see that customers with a balance of 3000-6000 acc
 55.6% of the data do have housing loans, which leaves the remaining 44.4% of the data that does not have housing loans. Of those who had a housing loan, Only 36.6% have deposited with the bank, while of those who did not have a housing loan 63.4% have deposited with the bank. Looking at this we can say that those without a
 housing loan are more likely to deposit with the bank from the marketing channels.
 
-8.) Contact
-For those contacted by telephone the percentage of those who deposited were 13.4% while those contacted through cellphone were slightly more likely to have deposited with a percentage of 14.9%
+8.)
 
-9.)Personal Loan
 
 
 ### 2.2.2 Main Analysis
@@ -293,7 +249,11 @@ Ultimately, we see that all all 3 stepwise selections (backward, forward, both) 
 
 The reason we think AIC is the most robust and appropriate and do not use LRT nor BIC is because firstly, a Likelihood Ratio Test only provides a "heauristic model selection," it's main purpose is not for variable selection but just a quick and convinient way of selecting variables. We chose to select variables at a 5% significance level, but this selection is in fact trivial. If we chose a different alpha level such as 1% or 10%, our variables would be different. Therefore, it is an inferior choice as compared to AIC and BIC.
 
-While AIC and BIC are both robust parameters, for the purposes of answering this statistical question of interest, we choose AIC over BIC. BIC usually penalizes complicated models more than AIC. Naturally, AIC would create a more complicated model (with more predictors) yet it is actually better for prediction. Models built using BIC would be less complicated, which would be betteer for inference, but worse than AIC in terms of predictive performance. 
+While AIC and BIC are both robust parameters, for the purposes of answering this statistical question of interest, we choose AIC over BIC. BIC usually penalizes complicated models more than AIC. Naturally, AIC would create a more complicated model (with more predictors) yet it is actually better for prediction. The Akaike information criterion is known to be efficient in the sense that its prediction performance is asymptotically equivalent to the best offered by the candidate models (Ding, Tarokh, &amp; Yang, Bridging AIC and BIC: a new criterion for autoregression 2016)[1]. When the true model is not in the candidate model set the AIC is effcient, in that it will asymptotically choose whichever model minimizes the mean squared error of prediction/estimation. The BIC is not effcient under these circumstances (Vrieze, Model selection and psychological theory: a discussion of the differences between the Akaike information criterion (AIC) and the Bayesian information criterion (BIC) 2012) [2]. Models built using BIC would be less complicated, which would be betteer for inference, but worse than AIC in terms of predictive performance. 
+
+*[1] Ding, J., Tarokh, V., &amp; Yang, Y. (2016, August 24). Bridging AIC and BIC: A new criterion for autoregression. Retrieved December 13, 2020, from https://arxiv.org/abs/1508.02473*
+
+*[2] Vrieze, S. (2012, June). Model selection and psychological theory: A discussion of the differences between the Akaike information criterion (AIC) and the Bayesian information criterion (BIC). Retrieved December 13, 2020, from https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3366160/*
 
 ## Second Method: 
 
@@ -479,21 +439,15 @@ pred = format(round(predict(logistic.model.AIC, newdata = bank.test, type = "res
 conf = table(pred, as.factor(bank.test$y));conf
 
 #Tuning parameters
-pred.tune.log = prediction(pred, bank.test$y)
+pred2 = predict(logistic.model.AIC, newdata = bank.test, type = "response")
+pred.tune.log = prediction(pred2, bank.test$y)
 perf.tune.log = performance(pred.tune.log, measure = "tpr", x.measure = "fpr")
 accuracy.log = performance(pred.tune.log, measure = "acc", x.measure = "cutoff")
 plot(accuracy.log)
 plot(perf.tune.log) ##selecting default threshold value of 0.5
-<<<<<<< HEAD
-<<<<<<< HEAD
 auc.log = as.numeric(performance(pred.tune.log, measure = "auc")@y.values)
 auc.log
-acc.log = (performance(pred.tune.log, measure = "acc")@y.values)
-
-=======
->>>>>>> 7ba676ff7dc1cdb68846d0715ddb0f67d275b02e
-=======
->>>>>>> 7ba676ff7dc1cdb68846d0715ddb0f67d275b02e
+roc = performance
 
 #Classification accuracy
 (conf[1,1]+conf[2,2])/(sum(conf))
@@ -568,6 +522,17 @@ varImpPlot(rf)
 prediction_rf <- format(predict(rf, bank.test))
 conf_rf <- table(prediction_rf, as.factor(bank.test$y))
 conf_rf
+
+pred3 = predict(prediction_rf, newdata = bank.test, type = "response")
+pred.tune.rf = prediction(pred2, bank.test$y)
+perf.tune.rf = performance(pred.tune.rf, measure = "tpr", x.measure = "fpr")
+accuracy.rf = performance(pred.tune.rf, measure = "acc", x.measure = "cutoff")
+acc.rf = as.numeric(performance(pred.tune.rf, measure = "acc")@y.values)
+acc.rf #accuracy
+plot(accuracy.rf)
+plot(perf.tune.rf) 
+auc.rf = as.numeric(performance(pred.tune.rf, measure = "auc")@y.values)
+auc.rf #auc
 
 #Classification accuracy
 classicitation_accuracy_rf <- (conf_rf[1,1]+conf_rf[2,2])/(sum(conf_rf))
