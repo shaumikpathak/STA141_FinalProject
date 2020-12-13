@@ -556,21 +556,6 @@ importance_of_variables <- importance(rf)
 varImpPlot(rf)
 
 #duration is the most important variable, default is the least important
-
-###################################################################
-#oob.err = double(16)                       #Out-of-bag error
-#test.err = double(16)                      #Test error
-#for(mtry in 1:16){
-#  fit = randomForest(as.factor(y)~., data = bank.train, mtry=mtry, ntree = 1)
-#  oob.err[mtry] = fit$err.rate[1]
-#  pred = predict(fit, boston[-train,])
-#  test.err[mtry] = with(boston[-train,], mean( (medv-pred)^2 ))
-#}
-###################################################################
-#matplot(1:mtry, cbind(test.err, oob.err), pch = 23, col = c("red", "blue"), type = "b", ylab="Mean Squared Error",xlab="m")
-#legend("topright", legend = c("OOB", "Test"), pch = 23, col = c("red", "blue"))
-###############################################################
-
 prediction_rf <- format(predict(rf, newdata = bank.test, type = "response"))
 conf_rf <- table(prediction_rf, as.factor(bank.test$y))
 conf_rf
@@ -579,15 +564,13 @@ predictions = as.vector(rf$votes[,2])
 pred=prediction(predictions,bank.train$y)
 
 perf_AUC=performance(pred,"auc") #Calculate the AUC value
-AUC=perf_AUC@y.values[[1]]
+AUC=perf_AUC@y.values[[1]];AUC
 
 perf_ROC=performance(pred,"tpr","fpr") #plot the actual ROC curve
 plot(perf_ROC, main="ROC plot")
 
-#text(0.5,0.5,paste("AUC = ",format(AUC, digits=5, scientific=FALSE)))
-
 #Classification accuracy
-classicitation_accuracy_rf <- (conf_rf[1,1]+conf_rf[2,2])/(sum(conf_rf))
+classicitation_accuracy_rf <- (conf_rf[1,1]+conf_rf[2,2])/(sum(conf_rf)); classicitation_accuracy_rf
 ```
 We see that in both cases, duration is the most important variable, whereas default is the least important variable. Additionally, the classification accuracy according to our model is `r classicitation_accuracy_rf`, very close to what we get in our logistic model after AIC variable selection. 
 
