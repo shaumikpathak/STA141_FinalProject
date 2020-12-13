@@ -2,7 +2,9 @@
 title: "STA141A Final Project"
 author: "Animay Sharma, Aditya Kallepalli, Charles Chien, Shaumik Pathak"
 date: "12/14/2020"
-output: pdf_document
+output:
+  html_document:
+    df_print: paged
 ---
 ```{r, message=FALSE, warning = FALSE, echo=FALSE}
 #setup
@@ -16,6 +18,12 @@ library(dplyr)
 library(explore)
 library(corrplot)
 library(ROCR)
+
+#bank_full <- read_delim("datasets/bank-full.csv", 
+  #  ";", escape_double = FALSE, trim_ws = TRUE)
+#View(bank_full)
+bank.data = bank_full
+
 library(cutpointr)
 library(caret)
 library(randomForest)
@@ -28,6 +36,7 @@ bank.data <- read_delim("datasets/bank-full.csv",";", escape_double = FALSE, tri
 #clean NA vaules
 bank.data = na.omit(bank.data)
 #look at sample of our dataset
+
 head(bank.data)
 
 # modifying data set
@@ -407,6 +416,7 @@ accuracy.log = performance(pred.tune.log, measure = "acc", x.measure = "cutoff")
 plot(accuracy.log)
 plot(perf.tune.log) ##selecting cut off calue of 0.3
 
+
 pred.cutoff = cut(logistic.pred, c(-Inf, 0.2, Inf), labels = c("No","Yes"))
  
 ##Confusion
@@ -438,6 +448,7 @@ bank.num = data.frame(as.numeric(as.factor(bank.data$age)),
                       as.numeric(as.factor(bank.data$y)))
                       
 colnames(bank.num) = c("Age", "Job", "Marital", "Education", "Default", "Balance", "Housing", " Loan", "Contact", "Day", "Month", "Duration","Campaign", "Pdays", "Previous", "Poutcome","Y")
+
 
 
 bank.num %>%
@@ -493,6 +504,7 @@ conf_rf
 classicitation_accuracy_rf <- (conf_rf[1,1]+conf_rf[2,2])/(sum(conf_rf))
 ```
 Classification accuracy is `r classicitation_accuracy_rf`, very close to what we get in our logistic model after AIC variable selection. 
+
 
 # Code Appendix
 ```{r, ref.label=knitr::all_labels(),echo=TRUE,eval=FALSE}
