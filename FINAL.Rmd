@@ -141,7 +141,7 @@ The target population of this analysis would be all customers of banks in Portug
 
 ### 2.2.1 Descriptive Analysis
 
-```{r}
+```{r, echo=FALSE}
 summary(bank.data)
 deposit.status = bank.data$y 
 
@@ -192,7 +192,7 @@ ggplot(bank.data, aes(x=bank.data$poutcome,fill=deposit.status)) + geom_bar(posi
   labs(y= "Number of Clients", x="poutcome", title = "Previous Campaign Outcome")
 
 ##Interactive EDA (NOTE: SET TARGET TO y. use install.packages("explore"))
-explore_shiny(bank.data)
+#explore_shiny(bank.data)
 ```
 (Note: Stop explore_shiny manually to proceed with remaining code)
 
@@ -386,7 +386,7 @@ While AIC and BIC are both robust parameters, for the purposes of answering this
 ## Method 1. Logistic Regression & Model Selection
 
 Here is a summary of a logistic regression model with all the input variables: 
-```{r}
+```{r, echo=FALSE}
 #make copy of data
 lr.bank.data <- bank.train
 
@@ -402,7 +402,7 @@ summary(logistic.model)
 
 
 ### Backward Stepwise Model Selection Using LRT
-```{r, message=FALSE, warning = FALSE, echo = FALSE}
+```{r, message=FALSE, warning = FALSE, echo = FALSE, include=FALSE}
 #perform feature selection using likelihood ratio test (comparing a certain coeffeicient vs. it to be zero) to prune down model. Alpha = 0.05
 b_first_run <- drop1(glm(as.factor(y)~., binomial,lr.bank.data),test="LRT")
 #Find largest p value (larger p value indicates insignificance) to be age, so we drop age from our second run
@@ -423,7 +423,7 @@ Perform feature selection using likelihood ratio test (comparing a certain coeff
 
 
 ### Forward Stepwise Model Selection Using LRT
-```{r}
+```{r, message=FALSE, warning = FALSE, echo = FALSE, include=FALSE}
 #perform feature selection using likelihood ratio test (comparing a certain coeffeicient vs. it to be zero) to prune model. Forward stepwise model selection adds variable with smallest p value each time. Alpha = 0.05
 f_first_run <- add1(glm(as.factor(y)~1, binomial, lr.bank.data),
      scope = ~age+job+marital+education+default+balance+housing+loan+contact+day+month+duration+campaign+pdays+previous+poutcome,
@@ -484,7 +484,7 @@ Not surprisingly, backward and forward stepwise using LRT yield same results. We
 (y) ~ job + marital + education + housing + loan + contact + day + month + duration + campaign + poutcome. 
 
 ### Forward Selection Using AIC - (Less penalize on larger models, so creates more complicated model, but better predictive performance)
-```{r, message=FALSE, warning = FALSE}
+```{r, message=FALSE, warning = FALSE, echo = FALSE, include=FALSE}
 f_AIC <- step(glm(y~1, binomial, lr.bank.data),
      scope = ~age+job+marital+education+default+balance+housing+loan+contact+day+month+duration+campaign+pdays+previous+poutcome,
      direction = "forward")
@@ -495,7 +495,7 @@ f_AIC
 According to this criteria, we excluded previous, pdays, default, and age. Our model is y ~ duration + poutcome + month + contact + housing + job + campaign + loan + marital + education + day + balance. 
 
 ### Forward Selection Using BIC - (More penalize on larger models, builds simpler models, less complicated and better for inference)
-```{r, message=FALSE, warning = FALSE, echo = FALSE}
+```{r, message=FALSE, warning = FALSE, echo = FALSE, include=FALSE}
 f_BIC <- step(glm(y~1, binomial, lr.bank.data),
      scope = ~age+job+marital+education+default+balance+housing+loan+contact+day+month+duration+campaign+pdays+previous+poutcome,
      direction = "forward",
@@ -507,7 +507,7 @@ f_BIC
 According to this criteria, we excluded education, balance, previous, default, age, pdays, and job. Our model is y ~ duration + poutcome + month + contact + housing + campaign + marital + loan + day.
 
 ### Backward Selection Using AIC
-```{r, message=FALSE, warning = FALSE, echo = FALSE}
+```{r, message=FALSE, warning = FALSE, echo = FALSE, include=FALSE}
 b_AIC <- step(glm(y~., binomial, lr.bank.data),
      direction = "backward")
 #pdays, default, age, previous
@@ -517,7 +517,7 @@ b_AIC
 According to this criteria, we excluded previous, pdays, default, and age. Our model is y ~ duration + poutcome + month + contact + housing + job + campaign + loan + marital + education + day + balance. Which is the same as Forward Selection using AIC.
 
 ### Backward Selection Using BIC
-```{r, message=FALSE, warning = FALSE, echo = FALSE}
+```{r, message=FALSE, warning = FALSE, echo = FALSE, include=FALSE}
 b_BIC <- step(glm(y~., binomial, lr.bank.data),
      direction = "backward",
      k = log(dim(lr.bank.data)[1]))
@@ -527,7 +527,7 @@ b_BIC <- step(glm(y~., binomial, lr.bank.data),
 According to this criteria, we excluded education, balance, previous, default, age, pdays, and job. Our model is y ~ duration + poutcome + month + contact + housing + campaign + marital + loan + day. Which is the same as Forward Selection using BIC. 
 
 ### Both Directions Using AIC
-```{r, message=FALSE, warning = FALSE, echo = FALSE}
+```{r, message=FALSE, warning = FALSE, echo = FALSE, include=FALSE}
 both_AIC <- step(glm(y~1, binomial, lr.bank.data),
      scope = ~age+job+marital+education+default+balance+housing+loan+contact+day+month+duration+campaign+pdays+previous+poutcome,
      direction = "both")
@@ -538,7 +538,7 @@ both_AIC
 Here, we exclude pdays, default, age, and previous. Our model is y ~ duration + poutcome + month + contact + housing + job + campaign + loan + marital + day + education + balance. 
 
 ### Both Directions Using BIC
-```{r, message=FALSE, warning = FALSE, echo = FALSE}
+```{r, message=FALSE, warning = FALSE, echo = FALSE, include=FALSE}
 both_BIC <- step(glm(y~1, binomial, lr.bank.data),
      scope = ~age+job+marital+education+default+balance+housing+loan+contact+day+month+duration+campaign+pdays+previous+poutcome,
      direction = "both",
@@ -556,7 +556,7 @@ y ~ duration + poutcome + month + contact + housing + job + campaign + loan + ma
 
 The confusion matrix and our classification accuracy with this model are below.
 
-```{r}
+```{r, message=FALSE, warning = FALSE, echo = FALSE}
 #Build logistic model with selected significant variables using AIC stepwise variable selection
 logistic.model.AIC <- glm(y ~ duration + poutcome + month + contact + housing + job + campaign + loan + marital + day + education + balance, binomial(link = "logit"),lr.bank.data)
 
@@ -577,6 +577,43 @@ auc.log
 log.acc = (conf[1,1]+conf[2,2])/(sum(conf)); log.acc
 ```
 
+<<<<<<< HEAD
+### Correlation Analysis
+
+```{r, message=FALSE, warning = FALSE, echo=FALSE}
+bank.num = data.frame(as.numeric(as.factor(bank.data$age)),
+                      as.numeric(as.factor(bank.data$job)),
+                      as.numeric(as.factor(bank.data$marital)),
+                      as.numeric(as.factor(bank.data$education)),
+                      as.numeric(as.factor(bank.data$default)),
+                      as.numeric(as.factor(bank.data$balance)),
+                      as.numeric(as.factor(bank.data$housing)),
+                      as.numeric(as.factor(bank.data$loan)),
+                      as.numeric(as.factor(bank.data$contact)),
+                      as.numeric(as.factor(bank.data$day)),
+                      as.numeric(as.factor(bank.data$month)),
+                      as.numeric(as.factor(bank.data$duration)),
+                      as.numeric(as.factor(bank.data$campaign)),
+                      as.numeric(as.factor(bank.data$pdays)),
+                      as.numeric(as.factor(bank.data$previous)),
+                      as.numeric(as.factor(bank.data$poutcome)),
+                      as.numeric(as.factor(bank.data$y)))
+                      
+colnames(bank.num) = c("Age", "Job", "Marital", "Education", "Default", "Balance", "Housing", " Loan", "Contact", "Day", "Month", "Duration","Campaign", "Pdays", "Previous", "Poutcome","Y")
+
+bank.num %>%
+  cor() %>%
+  corrplot(method = "number",
+           tl.srt = 45,
+           bg = "black",
+           order = "FPC",
+           tl.col = "black",
+           number.cex = 0.5)
+```
+The above correlogram is ordered in a first principle component manner. We can see that for the response variable, i.e. Y, the following can be said for its correlation with respect to the predictor variables:
+1.) 
+=======
+>>>>>>> 26a0aeb57ddc15d684df017c5af8e7f3de5d2835
 
 # Method 2. Random Forest
 The second method that we choose is Random Forest. A Random Forest is a collection of decision trees and average/majority vote of the forest is selected as the predicted output. The reason that we choose it is because a Random Forest model will be less prone to over fitting than a decision tree, and gives a more generalized solution. Random Forest is more robust and accurate than decision trees.
@@ -611,7 +648,7 @@ classicitation_accuracy_rf <- (conf_rf[1,1]+conf_rf[2,2])/(sum(conf_rf)); classi
 We see that in both cases, duration is the most important variable, whereas default is the least important variable. Additionally, the classification accuracy according to our model is `r classicitation_accuracy_rf`, very close to what we get in our logistic model after AIC variable selection. 
 
 ##Comparison
-```{r}
+```{r, message=FALSE, warning = FALSE, echo = FALSE}
 comparison.table = data.frame(Method = c('Random Forest', 'Logistic Regression'), Accuracy = NA, AUC = NA )
 comparison.table$Accuracy = c(classicitation_accuracy_rf, log.acc)
 comparison.table$AUC = c(AUC, auc.log)
