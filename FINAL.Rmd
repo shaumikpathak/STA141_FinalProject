@@ -25,6 +25,7 @@ library(randomForest)
 require(caTools)
 library(rpart)
 library(pROC)
+library(ROCR)
 
 
 #import dataset
@@ -61,6 +62,7 @@ bank.test = bank.data %>%
   setdiff(bank.train)
 
 bank.test$y <- ifelse(bank.test$y=='yes',1,0)
+bank.train$y <- ifelse(bank.train$y=='yes',1,0)
 ```
 
 # 1. Introduction
@@ -573,30 +575,16 @@ prediction_rf <- format(predict(rf, newdata = bank.test, type = "response"))
 conf_rf <- table(prediction_rf, as.factor(bank.test$y))
 conf_rf
 
+predictions = as.vector(rf$votes[,2])
+pred=prediction(predictions,bank.train$y)
 
-pred3 = predict(rf, newdata = bank.test, type = "response")
-pred.tune.rf = prediction(as.numeric(pred3), bank.test$y)
-perf.tune.rf = performance(pred.tune.rf, measure = "tpr", x.measure = "fpr")
-accuracy.rf = performance(pred.tune.rf, measure = "acc", x.measure = "cutoff")
-acc.rf = performance(pred.tune.rf, measure = "acc")@y.values
-acc.rf #accuracy
-plot(accuracy.rf)
-plot(perf.tune.rf) 
-auc.rf = as.numeric(performance(pred.tune.rf, measure = "auc")@y.values)
-auc.rf #auc
+perf_AUC=performance(pred,"auc") #Calculate the AUC value
+AUC=perf_AUC@y.values[[1]]
 
+perf_ROC=performance(pred,"tpr","fpr") #plot the actual ROC curve
+plot(perf_ROC, main="ROC plot")
 
-predictions <- predict(rf, newdata = bank.test, type = "prob")
-pred.tune.rf = prediction(as.numeric(predictions), bank.test$y)
-perf.tune.rf = performance(pred.tune.rf, measure = "tpr", x.measure = "fpr")
-accuracy.rf = performance(pred.tune.rf, measure = "acc", x.measure = "cutoff")
-acc.rf = performance(pred.tune.rf, measure = "acc")@y.values
-acc.rf #accuracy
-plot(accuracy.rf)
-plot(perf.tune.rf) 
-auc.rf = as.numeric(performance(pred.tune.rf, measure = "auc")@y.values)
-auc.rf #auc
-
+#text(0.5,0.5,paste("AUC = ",format(AUC, digits=5, scientific=FALSE)))
 
 #Classification accuracy
 classicitation_accuracy_rf <- (conf_rf[1,1]+conf_rf[2,2])/(sum(conf_rf))
