@@ -61,7 +61,6 @@ bank.test = bank.data %>%
 
 bank.test$y <- ifelse(bank.test$y=='yes',1,0)
 ```
-```
 
 # 1. Introduction
 ## 1.1 Background
@@ -98,7 +97,7 @@ The target population of this analysis would be all customers of banks in Portug
 
 ### 2.2.1 Descriptive Analysis
 
-```{r, echo = FALSE}
+```{r}
 summary(bank.data)
 deposit.status = bank.data$y         
 
@@ -150,8 +149,8 @@ ggplot(bank.data, aes(x=bank.data$poutcome,fill=deposit.status)) + geom_bar(posi
 
 ##Interactive EDA (NOTE: SET TARGET TO y. use install.packages("explore"))
 explore_shiny(bank.data)
-
 ```
+
 
 A short summary of the Exploratory Data Analysis is as follows:
 
@@ -252,7 +251,7 @@ While AIC and BIC are both robust parameters, for the purposes of answering this
 # Logistic Regression & Model Selection
 
 Here is a summary of a logistic regression model with all the input variables: 
-```{r, message = FALSE, warning = FALSE}
+```{r}
 #make copy of data
 lr.bank.data <- bank.train
 
@@ -265,6 +264,7 @@ logistic.model <- glm(as.factor(y)~., binomial(link = "logit"),lr.bank.data)
 #summary of logistic model
 summary(logistic.model)
 ```
+
 
 ## Backward Stepwise Model Selection Using LRT
 ```{r, message=FALSE, warning = FALSE, echo = FALSE}
@@ -288,7 +288,7 @@ Perform feature selection using likelihood ratio test (comparing a certain coeff
 
 
 ## Forward Stepwise Model Selection Using LRT
-```{r, message=FALSE, warning = FALSE, echo = FALSE}
+```{r}
 #perform feature selection using likelihood ratio test (comparing a certain coeffeicient vs. it to be zero) to prune model. Forward stepwise model selection adds variable with smallest p value each time. Alpha = 0.05
 f_first_run <- add1(glm(as.factor(y)~1, binomial, lr.bank.data),
      scope = ~age+job+marital+education+default+balance+housing+loan+contact+day+month+duration+campaign+pdays+previous+poutcome,
@@ -341,6 +341,7 @@ f_twelve_run <- add1(glm(as.factor(y)~duration+poutcome+month+contact+housing+jo
 #Final mode: y ~ job + marital + education + housing + loan + contact + day + month + duration + campaign + poutcome
 #Dropped age, default, pdays, previous, balance.
 ```
+
 
 Perform feature selection using likelihood ratio test (comparing a certain coeffeicient vs. it to be zero) to prune down model at alpha = 0.05. We find the smallest p value at each step to add the variable. After 12 steps, we have added job, marital, education, housing, loan, contact, day, month, duration, campaign, and poutcome to our model. All variables at the twelveth run have p value insignificant at 5% significance level, so we stop our test. The final model is (y) ~ job + marital + education + housing + loan + contact + day + month + duration + campaign + poutcome. We have left out age, default, pdays, previous, and balance. 
 
@@ -446,6 +447,7 @@ acc.logistic = (glmconf[1,1]+glmconf[2,2])/(sum(glmconf))
 Thus accuracy = `r acc.logistic`
 
 ### Correlation Analysis
+
 ```{r, message=FALSE, warning = FALSE}
 bank.num = data.frame(as.numeric(as.factor(bank.data$age)),
                       as.numeric(as.factor(bank.data$job)),
