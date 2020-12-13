@@ -25,9 +25,8 @@ While our main goal is to build a classification model and assist with bank mark
 
 To answer the primary scientific question of interest, we would fit our model in 2 different methods. The response will be a binary yes/no variable "has the client subscribed a term deposit?" All other variables provided will then be our input variables to allow us to build this model. Here, our 2  classification methods are
 
-1.Decision Trees
-2. Logistic Regression
-3. Random Forest
+1. Logistic Regression
+2. Random Forest
 
 We would then use both backward and forward stepwise model selection using a likelihood ratio test (LRT) to conduct a heauristic model selection and prune down our model. We would also use cross validation (CV) to obtain more robust results.
 
@@ -341,9 +340,6 @@ both_BIC <- step(glm(y~1, binomial, lr.bank.data),
 #education, balance, previous, default, age, pdays, job
 ```
 
-<<<<<<< Updated upstream
-##Random Forest
-=======
 For logistic regression, we use both forward and backward stepwise selection using AIC as our selection criteria. Although using the Liklihood Ratio Test(LRT) also works, we believe the using a proper parameter such as AIC or BIC would be more robust than using a LRT. Furthermore, we choose to use AIC over BIC. The reason is that we don't mind having a more comlicated model to give us better predictive performance, rather than having a small model as selected by the BIC (which is simple and better for inference as compared to a model selected by BIC.)
 
 Ultimately, we see that all all 3 stepwise selections (backward, forward, both) using AIC yield the exact same model. We have dropped pdays, default, age, and previous. Our final logistic regression model would be
@@ -360,15 +356,14 @@ conf = table(predict(logistic.model, newdata = bank.test, type = "response")$cla
 (conf[1,1]+conf[2,2])/(sum(conf))
 
 confusionMatrix(data = as.numeric(pred>0.5), reference = as.factor(bank.test$y))
+```
 
->>>>>>> Stashed changes
-
+##Random Forest
 ```{r}
 # Install the dependencies and required libs
 library(randomForest)
 require(caTools)
 ```
-
 
 ```{r}
 # head(bank.data)
@@ -378,15 +373,12 @@ sample = sample.split(bank.data$y, SplitRatio = .75)
 train = subset(bank.data, sample == TRUE)
 test  = subset(bank.data, sample == FALSE)
 
-<<<<<<< Updated upstream
 ```
-
 
 ```{r}
 train$y = factor(train$y)
 rf <- randomForest(y ~ ., data = train)
-```
-=======
+
 z <- lda(AHD ~ ., data = Heart[trainHeart,],prior=c(1,1)/2)
 predict(z, Heart[-trainHeart, ])$class
 # confusion matrix
@@ -395,9 +387,6 @@ z.conf
 #Classification accuracy
 (z.conf[1,1]+z.conf[2,2])/(sum(z.conf))
 ```
-
-
-
 
 ## Animay
 
@@ -424,7 +413,6 @@ acc.logistic = (glmconf[1,1]+glmconf[2,2])/(sum(glmconf))
 ```
 -Accuracy = TP+TN/(TP+TN+FP+FN)
 Thus accuracy = `r acc.logistic`
->>>>>>> Stashed changes
 
 ### Correlation Analysis
 ```{r, message=FALSE, warning = FALSE}
@@ -448,24 +436,7 @@ bank.num = data.frame(as.numeric(as.factor(bank.data$age)),
                       
 colnames(bank.num) = c("Age", "Job", "Marital", "Education", "Default", "Balance", "Housing", " Loan", "Contact", "Day", "Month", "Duration","Campaign", "Pdays", "Previous", "Poutcome","Y")
 
-<<<<<<< Updated upstream
-```{r}
-rf
-names(rf)
-importance(rf)
-```
 
-
-```{r}
-
-library(rpart)
-DTmodel <- rpart(y~., data=train, method="class")
-DTmodel
-```
-
-```{r}
-```
-=======
 bank.num %>%
   cor() %>%
   corrplot(method = "number",
@@ -477,5 +448,46 @@ bank.num %>%
 ```
 The above correlogram is ordered in a first principle component manner. We can see that for the response variable, i.e. Y, the following can be said for its correlation with respect to the predictor variables:
 1.) 
->>>>>>> Stashed changes
 
+##Random Forest
+```{r}
+# Install the dependencies and required libs
+library(randomForest)
+require(caTools)
+```
+
+```{r}
+# head(bank.data)
+
+# split the dataset into train and test
+sample = sample.split(bank.data$y, SplitRatio = .75)
+train = subset(bank.data, sample == TRUE)
+test  = subset(bank.data, sample == FALSE)
+
+```
+
+```{r}
+train$y = factor(train$y)
+rf <- randomForest(y ~ ., data = train)
+
+z <- lda(AHD ~ ., data = Heart[trainHeart,],prior=c(1,1)/2)
+predict(z, Heart[-trainHeart, ])$class
+# confusion matrix
+z.conf=table(predict(z, Heart[-trainHeart, ])$class,Heart$AHD[-trainHeart])
+z.conf
+#Classification accuracy
+(z.conf[1,1]+z.conf[2,2])/(sum(z.conf))
+```
+
+```{r}
+rf
+names(rf)
+importance(rf)
+```
+
+
+```{r}
+library(rpart)
+DTmodel <- rpart(y~., data=train, method="class")
+DTmodel
+```
