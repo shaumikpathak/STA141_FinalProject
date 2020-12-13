@@ -261,7 +261,7 @@ housing loan are more likely to deposit with the bank from the marketing channel
 
 looking at the data for personal loans we can observe that 6.7% of those who said they had a personal loan deposited with the bank while 12.7% percent of those who did not have a personal loan deposited with the bank. We may see this feature in our Logistic regression models as the difference between those that have a loan and do not have a loan is very apparent.
 
-9.)
+9.) 
 
 
 ### 2.2.2 Main Analysis
@@ -502,7 +502,7 @@ auc.log = as.numeric(performance(pred.tune.log, measure = "auc")@y.values)
 auc.log
 
 #Classification accuracy
-(conf[1,1]+conf[2,2])/(sum(conf))
+log.acc = (conf[1,1]+conf[2,2])/(sum(conf)); log.acc
 ```
 
 ### Correlation Analysis
@@ -527,8 +527,6 @@ bank.num = data.frame(as.numeric(as.factor(bank.data$age)),
                       as.numeric(as.factor(bank.data$y)))
                       
 colnames(bank.num) = c("Age", "Job", "Marital", "Education", "Default", "Balance", "Housing", " Loan", "Contact", "Day", "Month", "Duration","Campaign", "Pdays", "Previous", "Poutcome","Y")
-
-
 
 bank.num %>%
   cor() %>%
@@ -574,6 +572,13 @@ classicitation_accuracy_rf <- (conf_rf[1,1]+conf_rf[2,2])/(sum(conf_rf)); classi
 ```
 We see that in both cases, duration is the most important variable, whereas default is the least important variable. Additionally, the classification accuracy according to our model is `r classicitation_accuracy_rf`, very close to what we get in our logistic model after AIC variable selection. 
 
+##Comparison
+```{r}
+comparison.table = data.frame(Method = c('Random Forest', 'Logistic Regression'), Accuracy = NA, AUC = NA )
+comparison.table$Accuracy = c(log.acc, classicitation_accuracy_rf)
+comparison.table$AUC = c(auc.log, AUC)
+kable_styling(kable(compare),c("striped","bordered"), full_width = F)
+```
 
 # Code Appendix
 ```{r, ref.label=knitr::all_labels(),echo=TRUE,eval=FALSE}
