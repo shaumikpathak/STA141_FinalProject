@@ -868,7 +868,7 @@ svm.perf = performance(svm.pred, "tpr",  "fpr")
 svm.perf.acc = performance(svm.pred, 'acc')
 auc.svm = performance(svm.pred, 'auc')
 auc.svm=auc.svm@y.values[[1]]
-plot(svm.perf, main = "ROC CURVE FOR ")
+plot(svm.perf, main = "ROC CURVE FOR SVM METHOD")
 plot(svm.perf.acc)
 conf.svm = table(pred.svm, as.factor(test.svm$y))
 acc.svm = (conf.svm[1,1]+conf.svm[2,2])/(sum(conf.svm))
@@ -912,7 +912,15 @@ abline(0,1,col = "red", lty = 2)
 ```
 
 
+<<<<<<< Updated upstream
 After comparing all of the models by checking the accuracy as well as the AUC, we conclude that the random forest model is more suitable for the classification model that is required to classify clients that will make a deposit and those who will not make a deposit. The random forest model and the logistic regression model have very similar accuracies with the random forest model having an accuracy of approximately 0.904 while the logistic regression model having an accuracy of approximately 0.902. This means that the random forest method has better predictive capabilities than the logistic regression model. We can also compare the AUC's of the model and see that the logistic regression model has a lower AUC than the random forest model. The logistic regression model has an AUC of 0.904 and the random forest model has an AUC of 0.926 which makes the random forest model better. Therefore, We will choose the Random Forest Model to use for our prediction model.
+=======
+<<<<<<< HEAD
+After comparing all of the models by checking the accuracy as well as the AUC, we conclude that the random forest model is most suitable for the prediction model that is required to predict clients that will make a deposit and those who will not make a deposit. The random forest model and the logistic regression model have very similar accuracies with the random forest model having an accuracy of approximately 0.904 while the logistic regression model having an accuracy of approximately 0.902. This means that the random forest method has better predictive capabilities than the logistic regression model. We can also compare the AUC's of the model and see that the logistic regression model has a lower AUC than the random forest model. The logistic regression model has an AUC of 0.904 and the random forest model has an AUC of 0.926 which makes the random forest model better. Therefore, we will choose the Random Forest Model to use for our prediction model.
+=======
+After comparing all of the models by checking the accuracy as well as the AUC, we conclude that the random forest model is more suitable for the classification model that is required to classify clients that will make a deposit and those who will not make a deposit. The random forest model and the logistic regression model have very similar accuracies with the random forest model having an accuracy of approximately 0.904 while the logistic regression model having an accuracy of approximately 0.902. This means that the random forest method has better predictive capabilities than the logistic regression model. We can also compare the AUC's of the model and see that the logistic regression model has a lower AUC than the random forest model. The logistic regression model has an AUC of 0.904 and the random forest model has an AUC of 0.926 which makes the random forest model better. Therefore, We will choose the Random Forest Model to use for our prediction model.
+>>>>>>> 13c5fd57cd25175cb972c86cb6d2ffe301e8d8fd
+>>>>>>> Stashed changes
 
 # 5. Code Appendix
 
