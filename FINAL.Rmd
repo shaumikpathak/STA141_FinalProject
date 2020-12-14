@@ -3,6 +3,7 @@ title: "STA141A Final Project"
 author: "Animay Sharma, Aditya Kallepalli, Charles Chien"
 date: "12/14/2020"
 output:
+  pdf_document: default
   html_document:
     df_print: paged
 ---
@@ -32,12 +33,11 @@ library(e1071)
 #import dataset
 bank.data <- read_delim("datasets/bank-full.csv",";", escape_double = FALSE, trim_ws = TRUE)
 # small datset for computationaly intensive tasks
-bank_small <- read_delim("datasets/bank.csv", 
-    ";", escape_double = FALSE, trim_ws = TRUE)
+bank_small <- read_delim("datasets/bank.csv", ";", escape_double = FALSE, trim_ws = TRUE)
 #clean NA vaules
 bank.data = na.omit(bank.data)
+bank_small = na.omit(bank_small)
 #look at sample of our dataset
-
 head(bank.data)
 
 # modifying data set
@@ -60,17 +60,19 @@ head(bank.data)
 
 #create test and train dataset
 bank.train = bank.data %>%
-  sample_frac(0.5)
+  sample_frac(0.8)
 
 bank.test = bank.data %>%
   setdiff(bank.train)
 
 bank.test$y <- ifelse(bank.test$y=='yes',1,0)
-
+bank.train$y <- ifelse(bank.train$y=='yes',1,0)
 ```
 
 # 1. Introduction
+
 ## 1.1 Background
+
 Here, we have a set of marketing data of a banking institution. The data is related with direct marketing campaigns of a Portuguese banking institution. The marketing campaigns were based on phone calls. Often, more than one contact to the same client was required, in order to access if the product (bank term deposit) would be ('yes') or not ('no') subscribed.
 
 Among the four datasets provided, we chose to utilize the "bank-full.csv" in this report, with 17 different inputs.
@@ -79,7 +81,7 @@ As mentioned in article (Lopez, Customer segmentation using machine learning 202
 
 Advanced analytics plays a key role when it comes to selecting potentially profitable clients, which allows the design of more effective marketing campaigns. By using the four steps of advanced analytics: descriptive, diagnostic, predictive, and prescriptive, we would be able to answer key questions such as "what happened?", "why did it happen?", "what will happen?", and "how can we make it happen?" 
 
-In this report, we would be covering most of those steps. Our primary goal is to build a predictive model to answer a simple yes or no question: to determine whether a client will sign on to a long-term deposit. A model as such would allow banks to save on marketing expense on groups of customers that have a low chance of subscription, and focus on other customers that have a high chance of success. Overall, this would improve the profitability of banks and ultimately decrease marketing deficiencies.
+In this report, we would be covering most of those steps in depth. Our primary goal is to build a predictive model to answer a simple yes or no question: to determine whether a client will sign on to a long-term deposit. A model as such would allow banks to save on marketing expense on groups of customers that have a low chance of subscription, and focus on other customers that have a high chance of success. Overall, this would improve the profitability of banks and ultimately decrease marketing deficiencies. We would build 2 different models, compare those candidates, and ultimately find the one that is more suitable and leads to a smaller error.
 
 While our main goal is to build a classification model and assist with bank marketing efforts, we would also like to conduct an exploratory data analysis (EDA) to explore relationships between different input variables. We would report any useful insights along the way, which covers both the "descriptive" and "diagnostic" parts of the four steps of advanced analytics as mentioned in the article.
 
@@ -128,18 +130,25 @@ Important note: this attribute highly affects the output target (e.g., if durati
 
 ## 1.2 Statistical Questions of Interest
 
-To answer the primary scientific question of interest, we would fit our model in 2 different methods. The response will be a binary yes/no variable "has the client subscribed a term deposit?" All other variables provided will then be our input variables to allow us to build this model. Here, our 2  classification methods are
+To answer the primary scientific question of interest, we would fit our model by 2 different methods. The response will be a binary yes/no variable "has the client subscribed a term deposit?" All other variables provided will then be our input variables to allow us to build this model. Here, our 2  classification methods are
 
 1. Logistic Regression
+
 2. Random Forest
 
-We would then use both backward and forward stepwise model selection using a likelihood ratio test (LRT) to conduct a heauristic model selection and prune down our model. We would also use AIC and BIC and compare the results of those with LRT. We would also use cross validation (CV) to obtain more robust results. Lastly we will choose between the two and select the better one using with better accuracy to be our final candidate.
+3. SVM (Extra Method)
+
+For our first method, We would then use both backward and forward stepwise model selection using a likelihood ratio test (LRT) to conduct a heauristic model selection and prune down our model. We would also use AIC and BIC and compare the results of those with LRT. Ultimately, out of all these variable selection methods, we would choose only one logistic regression model that is the most robust among the all.
+
+Then, we will compare our Logistic Regression and Random Forest, particularly their performance when running on the test data set that we separated, and obtain one final candidate to be our ultimate winner. For the purposes of simplicity, we are splitting our original dataset 80-20 (as a rule of thumb) to create our training and testing sets. 
 
 # 2. Analysis Plan
+
 We would first start by conducting an Exploratory Categorical Data Analysis (EDA) to evaluate the relationship between different variables to the response variable. This would provide a descriptive story as to answering the most basic question like "what happened?" Then, we would start building our classification model using two methods.
 
 ## 2.1 Population and Study Design
-The target population of this analysis would be all customers of banks in Portugal. We believe that sample from this particular Portuguese bank would be representative of all banks in Portugal. To Build the models we are using a dataset with 50% of the data. The other 50% will be used to for testing the accuracy of the models. This will help us assess which model is better at categorizing the data.
+
+The target population of this analysis would be all customers of banks in Portugal. We believe that sample from this particular Portuguese bank would be representative of all banks in Portugal. To build the models we are using a dataset with 80% of the data. The other 20% will be used to for testing and validating the accuracy of the models. This will help us assess which model is better at categorizing the data.
 
 ## 2.2 Statistical Analysis
 
@@ -198,11 +207,11 @@ deposit.status = bank.data$y
 # ##Interactive EDA (NOTE: SET TARGET TO y. use install.packages("explore"))
 # #explore_shiny(bank.data)
 ```
-(Note: Stop explore_shiny manually to proceed with remaining code)
+<span style="color:red">(Note: Stop explore_shiny manually to proceed with remaining code)</span>
 
 A short summary of the Exploratory Data Analysis is as follows:
 
-1.) Age: 
+#### 1.) Age: 
 Summary statistics of age are:
     Mean Age: 40.936
     Median Age: 39
@@ -216,7 +225,7 @@ ggplot(bank.data,aes(x=bank.data$age,fill=deposit.status)) + geom_histogram(binw
   labs(y= "Number of Clients", x="Age", title = "Distribution of Deposits by Age")
 age.desc = bank.data %>% group_by(y) %>% summarise(age.mean = mean(age), .groups = 'drop')
 ```
-2.) Jobs: 
+#### 2.) Jobs: 
 We can see a distribution of the types of jobs that dataset contains:
      admin.        = 5 171 (11.4%)
      blue-collar   = 9 732 (21.5%)
@@ -228,7 +237,7 @@ We can see a distribution of the types of jobs that dataset contains:
      services      = 4 154 (9.2%)
      student       = 938 (2.1%)
      technician    = 7 597 (16.8%)
-Most of the deposits are made by customers who work in management. Nearly 25% of customers who work as managers deposit money with the bank, followed by techinicians at around 17%.
+Most of the deposits are made by customers who work in management. Nearly 25% of customers who work as managers deposit money with the bank, followed by technicians at around 17%.
 
 ```{r, echo=FALSE}
 #Job
@@ -237,7 +246,7 @@ ggplot(bank.data, aes(x=bank.data$job,fill=deposit.status)) + geom_bar(position 
   theme(axis.text.x = element_text(size = 10, angle = 45, hjust=1, vjust=1))
 ```
 
-3.) Marital Status:
+#### 3.) Marital Status:
 Distribution of the martial status of customers is as follows:
      divorced = 5 207 (11.5%)
      married  = 27 214 (60.2%)
@@ -250,7 +259,7 @@ ggplot(bank.data, aes(x=bank.data$marital,fill=deposit.status)) + geom_bar(posit
   labs(y= "Number of Clients", x="Marital Status", title = "Distribution of Deposits by Marital Status")
 ```
 
-4.) Education: 
+#### 4.) Education: 
 Summary statistics for educational distribution of the bank's customers are as follows:
      primary = 6 851 (15.2%)
      secondary = 23 202 (51.3%)
@@ -264,7 +273,7 @@ ggplot(bank.data, aes(x=bank.data$education,fill=deposit.status)) + geom_bar(pos
   labs(y= "Number of Clients", x="Education", title = "Distribution of Deposits by Educational Qualification")
 ```
 
-5.) Defaults:
+#### 5.) Defaults:
 98.2% of customers do not default on credit payments. 11.8% of customers who do not default on payments make deposits as compared to 6.4% of customers who default on credit. 
 
 ```{r, echo=FALSE}
@@ -273,7 +282,7 @@ ggplot(bank.data, aes(x=bank.data$default,fill=deposit.status)) + geom_bar(posit
   labs(y= "Number of Clients", x="Credit Default", title = "Distribution of Credit Default and Deposits")
 ```
 
-6.) Balance:
+#### 6.) Balance:
 Summary statistics of balance is as follows:
   Minimum balance: -8019
   Maximum balance: 102,127
@@ -285,12 +294,12 @@ From the distribution plot we see that customers with a balance of 3000-6000 acc
 
 ```{r, echo=FALSE}
 #Balance
-ggplot(bank.data,aes(x=bank.data$balance,fill=deposit.status)) + geom_histogram(binwidth=1) +
+ggplot(bank.data,aes(x=balance,fill=deposit.status)) + geom_histogram(binwidth=1) +
   labs(y= "Number of Clients", x="Balance", title = "Distribution of Deposits by Balance")
 #balance.desc = bank.data %>% group_by(y) %>% summarise(balance.mean = mean(balance), .groups = 'drop')
 ```
 
-7.) Housing Loan
+#### 7.) Housing Loan
 55.6% of the data do have housing loans, which leaves the remaining 44.4% of the data that does not have housing loans. Of those who had a housing loan, Only 36.6% have deposited with the bank, while of those who did not have a housing loan 63.4% have deposited with the bank. Looking at this we can say that those without a
 housing loan are more likely to deposit with the bank from the marketing channels.
 
@@ -300,7 +309,7 @@ ggplot(bank.data, aes(x=bank.data$housing,fill=deposit.status)) + geom_bar(posit
   labs(y= "Number of Clients", x="Contact", title = "Distribution of Client Having a Housing Loan and Deposit")
 ```
 
-8.) Personal loan
+#### 8.) Personal loan
 Looking at the data for personal loans we can observe that 6.7% of those who said they had a personal loan deposited with the bank while 12.7% percent of those who did not have a personal loan deposited with the bank. We may see this feature in our Logistic regression models as the difference between those that have a loan and do not have a loan is very apparent.
 
 ```{r, echo=FALSE}
@@ -309,7 +318,7 @@ ggplot(bank.data, aes(x=bank.data$loan,fill=deposit.status)) + geom_bar(position
   labs(y= "Number of Clients", x="Loan", title = "Distribution of Clients with Loans and Deposit")
 ```
 
-9.) Contact:
+#### 9.) Contact:
 Summary statistics for method of contact are as follows:
      cellular  = 29 285 (64.8%)
      telephone = 2 906 (6.4%)
@@ -322,7 +331,7 @@ ggplot(bank.data, aes(x=bank.data$contact,fill=deposit.status)) + geom_bar(posit
   labs(y= "Number of Clients", x="Contact", title = "Distribution of Deposits by Contact")
 ```
 
-10.) Month:
+#### 10.) Month:
 Summary Statistics for month of contact are as follows:
      apr     = 2 932 (6.5%)
      aug     = 6 247 (13.8%)
@@ -342,7 +351,7 @@ ggplot(bank.data, aes(x=bank.data$month,fill=deposit.status)) + geom_bar(positio
   labs(y= "Number of Clients", x="Month", title = "Distribution of Deposits by Month")
 ```
 
-11.) Duration:
+#### 11.) Duration:
 Summary statistics for contact duration are as follows:
     min|max  = 0 | 4 918
     q05|q95  = 35 | 751
@@ -358,7 +367,7 @@ ggplot(bank.data,aes(x=bank.data$duration,fill=deposit.status)) + geom_histogram
 duration.desc = bank.data %>% group_by(y) %>% summarise(duration.mean = mean(duration), .groups = 'drop')
 ```
 
-12.) Contact:
+#### 12.) Contact:
 Summary statistics for number of times contacted are as follows:
     min|max  = 1 | 63
     q05|q95  = 1 | 8
@@ -373,7 +382,7 @@ ggplot(bank.data, aes(x=bank.data$contact,fill=deposit.status)) + geom_bar(posit
   labs(y= "Number of Clients", x="Contact", title = "Distribution of Deposits by Contact")
 ```
 
-13.) Previous Outcome:
+#### 13.) Previous Outcome:
 Summary statistics for previous ourcome is as follows:
     failure = 4 901 (10.8%)
      other   = 1 840 (4.1%)
@@ -387,8 +396,9 @@ ggplot(bank.data, aes(x=bank.data$poutcome,fill=deposit.status)) + geom_bar(posi
   labs(y= "Number of Clients", x="poutcome", title = "Previous Campaign Outcome")
 ```
 
-###2.2.2 Correlation Analysis
-```{r, message=FALSE, warning = FALSE}
+### 2.2.2 Correlation Analysis
+
+```{r, message=FALSE, warning = FALSE, echo = FALSE}
 bank.num = data.frame(as.numeric(as.factor(bank.data$age)),
                       as.numeric(as.factor(bank.data$job)),
                       as.numeric(as.factor(bank.data$marital)),
@@ -418,12 +428,11 @@ bank.num %>%
            tl.col = "black",
            number.cex = 0.5)
 ```
-The above correlogram is ordered in a first principle component manner. We can see that variables pday and previous contact method are highly correlated. Hence, we can remove these two variables since they bring about multicollinearity to any model we might make in the predictions later. We can further test the variable selection by backward/forward seletion in section 3 of the analysis. 
-
+The above correlogram is ordered in a first principle component manner. We can see that variables pday and previous contact method are highly correlated. Hence, we might be able to remove these two variables since they bring about multicollinearity to any model we might make in the predictions later. We can further test the variable selection by backward/forward selection in section 3 of the analysis. 
 
 ### 2.2.3 Prediction Models
 
-To answer our question of interest, building a predictive categorial model, we choose to utilize two different methods. 
+To answer our question of interest, building a predictive categorical model, we choose to utilize two different methods. 
 
 1. Logistic regression, particularly using different stepwise methods (backward, forward, both) and different selection criteria (Likelihood-Ratio Test, AIC, BIC) to conduct variable selection for building the most effective model.
 
@@ -433,20 +442,25 @@ Reasons for selecting these 2 predictive techniques:
 
 Logistic regression:
 
-We chose logistic regression as one of the modeling technique we would perform due to a couple of factors.It is relatively easy to implement on categorical data and the parameters can explain  the significance of each predictor variable. However, we still do acknowledge some of the down sides to this modeling technique. Linearity of the variables can affect the accuracy of the model and proper selection of features is required.
+We chose logistic regression as one of the modeling technique we would perform due to a couple of factors. It is relatively easy to implement on categorical data and the parameters can explain the significance of each predictor variable. However, we still do acknowledge some of the down sides to this modeling technique. Colinearity of the variables can affect the accuracy of the model and proper selection of features is required. However, those might be potentially addressed by our stepwise selection methods.
 
 Random forest: 
 
-The reason we chose random forest for this predictive model was because random forest is much better than logistic regression at handling multi-colinearity. The random forest model can also deal with categorical data better than the logistic regression can. However, THe logistic regression model does a better job deriving the significance of each of the predictor variables which would give us better incites on the data.
+The reason we chose random forest for this predictive model was because random forest is much better than logistic regression at handling multi-colinearity. Randome Forest is a collection of decision trees and average/majority vote of the forest is selected as the predicted output. It is less prone to overfitting than regular Decision trees, and gives a more generalized solution (Varghese, Comparative study on Classic Machine learning Algorithms 2019). It is also usually more robust and accurate than decision trees [2]. The random forest model can also deal with categorical data better than the logistic regression can. It usually comes up with a robust and accurate model that can handle large varieties of input data with binary, categorical, and continuous features, which we do have in this bank dataset. While Random Forest can give a probability over the prediction and supports implicit feature selection and derives feature importance, it is not a well descriptive model over the prediction [3] (Varghese, Comparative Study on Classic Machine learning Algorithms&nbsp;, Part-2 2018). A logistic regression model does a better job deriving the significance of each of the predictor variables which would give us better incites on the data.
 
 Finally, we will compare the two and see how the models compare to each other, and select a ultimate winner between the two. Our criteria for selecting the model will be based on the accuracy of the model and the AUC of the model.
 
+*[2] Varghese, D. (2019, May 10). Comparative study on Classic Machine learning Algorithms. Retrieved December 14, 2020, from https://towardsdatascience.com/comparative-study-on-classic-machine-learning-algorithms-24f9ff6ab222*
+
+*[3] Varghese, D. (2018, December 11). Comparative Study on Classic Machine learning Algorithms&nbsp;, Part-2. Retrieved December 14, 2020, from https://medium.com/@dannymvarghese/comparative-study-on-classic-machine-learning-algorithms-part-2-5ab58b683ec0*
 
 # 3. Extra-Credit Methods
 
-## First Method: Stepwise (Forward, Backward, Both) Variable Selection using AIC, BIC, and Likelihood Ratio Test (LRT) for our Logistic Regression Model. Specifically, we have computed results for: 
+## First Method: Correlation & Heat Map & Explore Function
 
-  1. LRT Forward - at 5% significance level, dropped variables *age*, *default*, *pdays*, *previous*, and *balance*.
+## Second Method: Stepwise (Forward, Backward, Both) Variable Selection using AIC, BIC, and Likelihood Ratio Test (LRT) for our Logistic Regression Model. Specifically, we have computed results for: 
+
+  1. LRT Forward - at 5% significance level, dropped variables *age*, *default*, *pdays*, *previous*.
   
   2. LRT Backward - same dropped variables as above.
   
@@ -456,37 +470,35 @@ Finally, we will compare the two and see how the models compare to each other, a
   
   5. AIC Both - same dropped variables as above.
   
-  6. BIC Forward - dropped variables *education*, *balance*, *previous*, *default*, *age*, *pdays*, and *job*
+  6. BIC Forward - dropped variables *previous*, *default*, *age*, *pdays*, and *job*
   
   7. BIC Backward - same dropped variables as above.
   
   8. BIC Both - same dropped variables as above.
   
-<span style="color:red"> Note, we tried adding interaction variables but it was too computationally complicated for R and our dataset </span>
+<span style="color:red"> Note, we tried adding interaction variables but it was too computationally complicated for R and our dataset, and leaded to stack overflow. </span>
 Ultimately, we see that all all 3 stepwise selections (backward, forward, both) using AIC yield the exact same model. We have dropped pdays, default, age, and previous. Our final logistic regression model would be:
 
 *y ~ duration + poutcome + month + contact + housing + job + campaign + loan + marital + day + education + balance*
 
-The reason we think AIC is the most robust and appropriate and do not use LRT nor BIC is because firstly, a Likelihood Ratio Test only provides a "heauristic model selection," it's main purpose is not for variable selection but just a quick and convinient way of selecting variables. We chose to select variables at a 5% significance level, but this selection is in fact trivial. If we chose a different alpha level such as 1% or 10%, our variables would be different. Therefore, it is an inferior choice as compared to AIC and BIC.
+The reason we think AIC is the most robust and appropriate and do not use LRT nor BIC is because firstly, a Likelihood Ratio Test only provides a "heauristic model selection," meaning it's main purpose is not for variable selection but just a quick and convinient way of selecting variables. We chose to select variables at a 5% significance level, but this selection is in fact trivial. If we chose a different alpha level such as 1% or 10%, our variables would be different. Therefore, it is an inferior choice as compared to AIC and BIC.
 
-While AIC and BIC are both robust parameters, for the purposes of answering this statistical question of interest, we choose AIC over BIC. BIC usually penalizes complicated models more than AIC. Naturally, AIC would create a more complicated model (with more predictors) yet it is actually better for prediction. The Akaike information criterion is known to be efficient in the sense that its prediction performance is asymptotically equivalent to the best offered by the candidate models (Ding, Tarokh, &amp; Yang, Bridging AIC and BIC: a new criterion for autoregression 2016)[1]. When the true model is not in the candidate model set the AIC is effcient, in that it will asymptotically choose whichever model minimizes the mean squared error of prediction/estimation. The BIC is not effcient under these circumstances (Vrieze, Model selection and psychological theory: a discussion of the differences between the Akaike information criterion (AIC) and the Bayesian information criterion (BIC) 2012) [2]. Models built using BIC would be less complicated, which would be betteer for inference, but worse than AIC in terms of predictive performance. 
+While AIC and BIC are both robust parameters, for the purposes of answering this statistical question of interest, we choose AIC over BIC. BIC usually penalizes complicated models more than AIC. Naturally, AIC would create a more complicated model (with more predictors) yet it is actually better for prediction. The Akaike information criterion is known to be efficient in the sense that its prediction performance is asymptotically equivalent to the best offered by the candidate models (Ding, Tarokh, &amp; Yang, Bridging AIC and BIC: a new criterion for autoregression 2016)[4]. When the true model is not in the candidate model set the AIC is efficient, in that it will asymptotically choose whichever model minimizes the mean squared error of prediction/estimation. The BIC is not efficient under these circumstances (Vrieze, Model selection and psychological theory: a discussion of the differences between the Akaike information criterion (AIC) and the Bayesian information criterion (BIC) 2012) [5]. Models built using BIC would be less complicated, which would be better for inference, but worse than AIC in terms of predictive performance, which is contradicting our main goal here.
 
-*[1] Ding, J., Tarokh, V., &amp; Yang, Y. (2016, August 24). Bridging AIC and BIC: A new criterion for autoregression. Retrieved December 13, 2020, from https://arxiv.org/abs/1508.02473*
+*[4] Ding, J., Tarokh, V., &amp; Yang, Y. (2016, August 24). Bridging AIC and BIC: A new criterion for autoregression. Retrieved December 13, 2020, from https://arxiv.org/abs/1508.02473*
 
-*[2] Vrieze, S. (2012, June). Model selection and psychological theory: A discussion of the differences between the Akaike information criterion (AIC) and the Bayesian information criterion (BIC). Retrieved December 13, 2020, from https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3366160/*
+*[5] Vrieze, S. (2012, June). Model selection and psychological theory: A discussion of the differences between the Akaike information criterion (AIC) and the Bayesian information criterion (BIC). Retrieved December 13, 2020, from https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3366160/*
 
-## Second Method: 
+## Third Method: SVM Method (See Below)
 
 # 4. Results
+
 ## Method 1. Logistic Regression & Model Selection
 
 Here is a summary of a logistic regression model with all the input variables: 
 ```{r, echo=FALSE}
 #make copy of data
 lr.bank.data <- bank.train
-
-#transform y into 1 and 0
-lr.bank.data$y <- ifelse(lr.bank.data$y=='yes',1,0)
 
 #create logistic model with all variables
 logistic.model <- glm(as.factor(y)~., binomial(link = "logit"),lr.bank.data)
@@ -508,13 +520,11 @@ b_third_run <- drop1(glm(as.factor(y)~job+marital+education+balance+housing+loan
 b_fourth_run <- drop1(glm(as.factor(y)~job+marital+education+balance+housing+loan+contact+day+month+duration+campaign+previous+poutcome, binomial,lr.bank.data),test="LRT")
 #Find largest p value to be previous, so drop previous from our fifth run
 b_fifth_run <- drop1(glm(as.factor(y)~job+marital+education+balance+housing+loan+contact+day+month+duration+campaign+poutcome, binomial,lr.bank.data),test="LRT")
-#Find largest p value to be balance, so drop balance from our sixth run
-b_sixth_run <- drop1(glm(as.factor(y)~job+marital+education+housing+loan+contact+day+month+duration+campaign+poutcome, binomial,lr.bank.data),test="LRT")
 #Stop. All p values significant at alpha = 0.05. Drawback = cutoff level is trivial choice. 
-#Final mode: (y) ~ job + marital + education + housing + loan + contact + day + month + duration + campaign + poutcome
-#Dropped age, default, pdays, previous, balance.
+#Final model: (y) ~ job + marital + education + balance + housing + loan + contact + day + month + duration + campaign + poutcome
+#Dropped age, default, pdays, previous.
 ```
-Perform feature selection using likelihood ratio test (comparing a certain coefficient vs. it to be zero) to prune down model at alpha = 0.05. We find the largest p value at each step to drop the variable. After 6 steps, we have dropped age, default, previous, and balance from our model. All variables at the sixth run have p value significant at 5% significance level, so we stop our test. The final model is (y) ~ job + marital + education + housing + loan + contact + day + month + duration + campaign + poutcome. 
+Perform feature selection using likelihood ratio test (comparing a certain coefficient vs. it to be zero) to prune down model at alpha = 0.05. We find the largest p value at each step to drop the variable. After 5 steps, we have dropped age, default, previous from our model. All variables at the fifth run have p value significant at 5% significance level, so we stop our test. The final model is (y) ~ job + marital + education + balance + housing + loan + contact + day + month + duration + campaign + poutcome.
 
 
 ### Forward Stepwise Model Selection Using LRT
@@ -567,16 +577,20 @@ f_eleventh_run <- add1(glm(as.factor(y)~duration+poutcome+month+contact+housing+
 f_twelve_run <- add1(glm(as.factor(y)~duration+poutcome+month+contact+housing+job+campaign+loan+marital+education+day, binomial, data = lr.bank.data),
      scope = ~.+age+default+balance+pdays+previous,
      test = "LRT")
+#Find smallest p value (small p value indicates significance) to be day, so we add balance to our thirdteenth run
+f_thirdteenth_run <- add1(glm(as.factor(y)~duration+poutcome+month+contact+housing+job+campaign+loan+marital+education+day+balance, binomial, data = lr.bank.data),
+     scope = ~.+age+default+pdays+previous,
+     test = "LRT")
 #Stop. All p values significant at alpha = 0.05. Drawback = cutoff level is trivial choice. 
-#Final mode: y ~ job + marital + education + housing + loan + contact + day + month + duration + campaign + poutcome
-#Dropped age, default, pdays, previous, balance.
+#Final mode: (y) ~ duration + poutcome + month + contact + housing + job + campaign + loan + marital + education + day + balance
+#Dropped age, default, pdays, previous.
 ```
 
-Perform feature selection using likelihood ratio test (comparing a certain coeffeicient vs. it to be zero) to prune down model at alpha = 0.05. We find the smallest p value at each step to add the variable. After 12 steps, we have added job, marital, education, housing, loan, contact, day, month, duration, campaign, and poutcome to our model. All variables at the twelveth run have p value insignificant at 5% significance level, so we stop our test. The final model is (y) ~ job + marital + education + housing + loan + contact + day + month + duration + campaign + poutcome. We have left out age, default, pdays, previous, and balance. 
+Perform feature selection using likelihood ratio test (comparing a certain coeffeicient vs. it to be zero) to prune down model at alpha = 0.05. We find the smallest p value at each step to add the variable. After 12 steps, we have added job, marital, education, housing, loan, contact, day, month, duration, campaign, and poutcome to our model. All variables at the twelveth run have p value insignificant at 5% significance level, so we stop our test. The final model is (y) ~ job + marital + education + housing + loan + contact + day + month + duration + campaign + poutcome + balance. We have left out age, default, pdays, previous. 
 
-Not surprisingly, backward and forward stepwise using LRT yield same results. We have excluded age, default, balance, pdays, and previous from our model, and the model selected from LRT is 
+Not surprisingly, backward and forward stepwise using LRT yield same results. We have excluded age, default, pdays, and previous from our model, and the model selected from LRT is 
 
-(y) ~ job + marital + education + housing + loan + contact + day + month + duration + campaign + poutcome. 
+(y) ~ job + marital + education + housing + loan + contact + day + month + duration + campaign + poutcome + balance. 
 
 ### Forward Selection Using AIC - (Less penalize on larger models, so creates more complicated model, but better predictive performance)
 ```{r, message=FALSE, warning = FALSE, echo = FALSE, include=FALSE}
@@ -596,10 +610,10 @@ f_BIC <- step(glm(y~1, binomial, lr.bank.data),
      direction = "forward",
      k = log(dim(lr.bank.data)[1]))
 f_BIC
-#education, balance, previous, default, age, pdays, job
-#y ~ duration + poutcome + month + contact + housing + campaign + marital + loan + day
+#previous, default, age, pdays, job
+y ~ duration + poutcome + month + contact + housing + campaign + loan + marital + education + balance + day
 ```
-According to this criteria, we excluded education, balance, previous, default, age, pdays, and job. Our model is y ~ duration + poutcome + month + contact + housing + campaign + marital + loan + day.
+According to this criteria, we excluded previous, default, age, pdays, and job. Our model is y ~ duration + poutcome + month + contact + housing + campaign + loan + marital + education + balance + day.
 
 ### Backward Selection Using AIC
 ```{r, message=FALSE, warning = FALSE, echo = FALSE, include=FALSE}
@@ -616,10 +630,12 @@ According to this criteria, we excluded previous, pdays, default, and age. Our m
 b_BIC <- step(glm(y~., binomial, lr.bank.data),
      direction = "backward",
      k = log(dim(lr.bank.data)[1]))
-#education, balance, previous, default, age, pdays, job
-#y ~ marital + housing + loan + contact + day + month + duration + campaign + poutcome
+b_BIC
+#previous, default, age, pdays, job
+#y ~ marital + education + balance + housing + loan + contact + day + month + duration + campaign + poutcome
+
 ```
-According to this criteria, we excluded education, balance, previous, default, age, pdays, and job. Our model is y ~ duration + poutcome + month + contact + housing + campaign + marital + loan + day. Which is the same as Forward Selection using BIC. 
+According to this criteria, we excluded previous, default, age, pdays, job. Our model is y ~ marital + education + balance + housing + loan + contact + day + month + duration + campaign + poutcome. Which is the same as Forward Selection using BIC. 
 
 ### Both Directions Using AIC
 ```{r, message=FALSE, warning = FALSE, echo = FALSE, include=FALSE}
@@ -640,9 +656,10 @@ both_BIC <- step(glm(y~1, binomial, lr.bank.data),
      k = log(dim(lr.bank.data)[1]))
 both_BIC
 #y ~ duration + poutcome + month + contact + housing + campaign + marital + loan + day
-#education, balance, previous, default, age, pdays, job
+#y ~ duration + poutcome + month + contact + housing + campaign + loan + marital + education + balance + day
+#previous, default, age, pdays, job
 ```
-Here, we exclude education, balance, previous, default, age, pdays, and job. Our model is y ~ duration + poutcome + month + contact + housing + campaign + marital + loan + day. 
+Here, we exclude previous, default, age, pdays, and job. Our model is y ~ duration + poutcome + month + contact + housing + campaign + loan + marital + education + balance + day.
 
 ### Building a Confusion Matrix with our final logistic regression model
 Again, our final model is the one with variables selected from AIC. 
@@ -671,43 +688,6 @@ auc.log
 #Classification accuracy
 log.acc = (conf[1,1]+conf[2,2])/(sum(conf)); log.acc
 ```
-
-
-### Correlation Analysis
-
-```{r, message=FALSE, warning = FALSE, echo=FALSE}
-bank.num = data.frame(as.numeric(as.factor(bank.data$age)),
-                      as.numeric(as.factor(bank.data$job)),
-                      as.numeric(as.factor(bank.data$marital)),
-                      as.numeric(as.factor(bank.data$education)),
-                      as.numeric(as.factor(bank.data$default)),
-                      as.numeric(as.factor(bank.data$balance)),
-                      as.numeric(as.factor(bank.data$housing)),
-                      as.numeric(as.factor(bank.data$loan)),
-                      as.numeric(as.factor(bank.data$contact)),
-                      as.numeric(as.factor(bank.data$day)),
-                      as.numeric(as.factor(bank.data$month)),
-                      as.numeric(as.factor(bank.data$duration)),
-                      as.numeric(as.factor(bank.data$campaign)),
-                      as.numeric(as.factor(bank.data$pdays)),
-                      as.numeric(as.factor(bank.data$previous)),
-                      as.numeric(as.factor(bank.data$poutcome)),
-                      as.numeric(as.factor(bank.data$y)))
-                      
-colnames(bank.num) = c("Age", "Job", "Marital", "Education", "Default", "Balance", "Housing", " Loan", "Contact", "Day", "Month", "Duration","Campaign", "Pdays", "Previous", "Poutcome","Y")
-
-bank.num %>%
-  cor() %>%
-  corrplot(method = "number",
-           tl.srt = 45,
-           bg = "black",
-           order = "FPC",
-           tl.col = "black",
-           number.cex = 0.5)
-```
-The above correlogram is ordered in a first principle component manner. We can see that for the response variable, i.e. Y, the following can be said for its correlation with respect to the predictor variables:
-1.) 
-
 
 # Method 2. Random Forest
 The second method that we choose is Random Forest. A Random Forest is a collection of decision trees and average/majority vote of the forest is selected as the predicted output. The reason that we choose it is because a Random Forest model will be less prone to over fitting than a decision tree, and gives a more generalized solution. Random Forest is more robust and accurate than decision trees.
@@ -741,9 +721,9 @@ classicitation_accuracy_rf <- (conf_rf[1,1]+conf_rf[2,2])/(sum(conf_rf)); classi
 ```
 We see that in both cases, duration is the most important variable, whereas default is the least important variable. Additionally, the classification accuracy according to our model is `r classicitation_accuracy_rf`, very close to what we get in our logistic model after AIC variable selection. 
 
-##SVM
+## Method 3. SVM
 ```{r}
-split = sample.split(bank_small$y,SplitRatio = 0.70)
+split = sample.split(bank_small$y,SplitRatio = 0.80)
 train.svm = subset(bank_small, split == TRUE)
 test.svm = subset(bank_small, split == FALSE)
 train.svm$y = as.numeric(as.factor(train.svm$y))
@@ -762,13 +742,14 @@ plot(svm.perf.acc)
 conf.svm = table(pred.svm, as.factor(test.svm$y))
 acc.svm = (conf.svm[1,1]+conf.svm[2,2])/(sum(conf.svm));acc.svm
 ```
-## SVM Interpretation
+
+### SVM Interpretation
 
 Support Vector Machine is a very popular classification technique used in Machine Learning. It is widely used due to having a significant accuracy. However, this type of model is commonly used for relatively smaller datasets. We mainly decided to use SVM becuase of the significant accuracy that is usually obtained from this model. 
 
 For the SVM model, we decided to use a relatively smaller subset of the actual dataset. This was because it is computationally costly to run SVM and since this was a very huge dataset, it made more sense to use the subset of the dataset which we named "bank_small".
 
-The accuracy that we obtained from running this model on the "bank_small" is `r acc.svm`. We can see that this is less than the accuracy of the logistic regression model that we trained which was `r acc.log`. Additionally, we found that it was also less than the classification accuracy of the random forest model which is `r classification_accuracy`.
+The accuracy that we obtained from running this model on the "bank_small" is `r acc.svm`. We can see that this is less than the accuracy of the logistic regression model that we trained which was `r log.acc`. Additionally, we found that it was also less than the classification accuracy of the random forest model which is `r classification_accuracy`.
 
 Moreover, from doing additional computation, we found out the Area Under the Curve for the ROC curve for each of the models. This area told us how much each of the models is capable of distinguishing between each of the classes. The AUC we got for the SVM model is `r auc.svm` as compared to the Logistic Regression AUC which was `r auc.log`.
 
@@ -780,9 +761,8 @@ By looking at all these scores and comparing them with the different model that 
 conf
 ```
 
+## Comparison
 
-
-##Comparison
 ```{r, message=FALSE, warning = FALSE, echo = FALSE}
 comparison.table = data.frame(Method = c('Random Forest', 'Logistic Regression'), Accuracy = NA, AUC = NA )
 comparison.table$Accuracy = c(classicitation_accuracy_rf, log.acc)
@@ -801,7 +781,7 @@ abline(0,1,col="red", lty = 2)
 ```
 
 
-After comparing both of the models by checking the accuracy as well as the AUC, we conclude that the random forest model is more suitable for the prediction model that is required to predict clients that will make a deposit and those who will not make a deposit. The random forest model and the logistic regression model have very similar accuracies with the random forest model having an accuracy of approximately 0.904 while the logistic regression model having an accuracy of approximately 0.902. This means that the random forest method has better predictive capabilities than the logistic regression model.We can also compare the AUC's of the model and see that the logistic regression model has a lower AUC than the random forest model. The logistic regression model has an AUC of 0.904 and the random forest model has an AUC of 0.926 which makes the random forest model better. Therefore, We will choose the Random Forest Model to use for our prediction model.
+After comparing all of the models by checking the accuracy as well as the AUC, we conclude that the random forest model is more suitable for the prediction model that is required to predict clients that will make a deposit and those who will not make a deposit. The random forest model and the logistic regression model have very similar accuracies with the random forest model having an accuracy of approximately 0.904 while the logistic regression model having an accuracy of approximately 0.902. This means that the random forest method has better predictive capabilities than the logistic regression model. We can also compare the AUC's of the model and see that the logistic regression model has a lower AUC than the random forest model. The logistic regression model has an AUC of 0.904 and the random forest model has an AUC of 0.926 which makes the random forest model better. Therefore, We will choose the Random Forest Model to use for our prediction model.
 
 # Code Appendix
 ```{r, ref.label=knitr::all_labels(),echo=TRUE,eval=FALSE}
