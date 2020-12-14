@@ -65,6 +65,7 @@ bank.train = bank.data %>%
 bank.test = bank.data %>%
   setdiff(bank.train)
 
+#turning yes and no into 1 and 0
 bank.test$y <- ifelse(bank.test$y=='yes',1,0)
 bank.train$y <- ifelse(bank.train$y=='yes',1,0)
 ```
@@ -296,6 +297,7 @@ From the distribution plot we see that customers with a balance of 3000-6000 acc
 #Balance
 ggplot(bank.data,aes(x=balance,fill=deposit.status)) + geom_histogram(binwidth=1) +
   labs(y= "Number of Clients", x="Balance", title = "Distribution of Deposits by Balance")
+
 #balance.desc = bank.data %>% group_by(y) %>% summarise(balance.mean = mean(balance), .groups = 'drop')
 ```
 
@@ -438,6 +440,8 @@ To answer our question of interest, building a predictive categorical model, we 
 
 2. Random Forest
 
+3. SVM (Extra Method)
+
 Reasons for selecting these 2 predictive techniques:
 
 Logistic regression:
@@ -495,7 +499,7 @@ While AIC and BIC are both robust parameters, for the purposes of answering this
 
 ## Method 1. Logistic Regression & Model Selection
 
-Here is a summary of a logistic regression model with all the input variables: 
+Here is a summary of a logistic regression model with all 16 of the input variables: 
 ```{r, echo=FALSE}
 #make copy of data
 lr.bank.data <- bank.train
@@ -524,7 +528,7 @@ b_fifth_run <- drop1(glm(as.factor(y)~job+marital+education+balance+housing+loan
 #Final model: (y) ~ job + marital + education + balance + housing + loan + contact + day + month + duration + campaign + poutcome
 #Dropped age, default, pdays, previous.
 ```
-Perform feature selection using likelihood ratio test (comparing a certain coefficient vs. it to be zero) to prune down model at alpha = 0.05. We find the largest p value at each step to drop the variable. After 5 steps, we have dropped age, default, previous from our model. All variables at the fifth run have p value significant at 5% significance level, so we stop our test. The final model is (y) ~ job + marital + education + balance + housing + loan + contact + day + month + duration + campaign + poutcome.
+Perform feature selection using likelihood ratio test (comparing a certain coefficient vs. it to be zero) to prune down model at alpha = 0.05. We find the largest p value at each step to drop the variable. After 5 steps, we have dropped age, default, pdays, previous from our model. All variables at the fifth run have p value significant at 5% significance level, so we stop our test. The final model is (y) ~ job + marital + education + balance + housing + loan + contact + day + month + duration + campaign + poutcome.
 
 
 ### Forward Stepwise Model Selection Using LRT
@@ -586,13 +590,14 @@ f_thirdteenth_run <- add1(glm(as.factor(y)~duration+poutcome+month+contact+housi
 #Dropped age, default, pdays, previous.
 ```
 
-Perform feature selection using likelihood ratio test (comparing a certain coeffeicient vs. it to be zero) to prune down model at alpha = 0.05. We find the smallest p value at each step to add the variable. After 12 steps, we have added job, marital, education, housing, loan, contact, day, month, duration, campaign, and poutcome to our model. All variables at the twelveth run have p value insignificant at 5% significance level, so we stop our test. The final model is (y) ~ job + marital + education + housing + loan + contact + day + month + duration + campaign + poutcome + balance. We have left out age, default, pdays, previous. 
+Perform feature selection using likelihood ratio test (comparing a certain coeffeicient vs. it to be zero) to prune down model at alpha = 0.05. We find the smallest p value at each step to add the variable. After 12 steps, we have added job, marital, education, housing, loan, contact, day, month, duration, campaign, and poutcome to our model. All variables at the thirdteenth run have p value insignificant at 5% significance level, so we stop our test. The final model is (y) ~ duration + poutcome + month + contact + housing + job + campaign + loan + marital + education + day + balance. We have left out age, default, pdays, previous. 
 
 Not surprisingly, backward and forward stepwise using LRT yield same results. We have excluded age, default, pdays, and previous from our model, and the model selected from LRT is 
 
 (y) ~ job + marital + education + housing + loan + contact + day + month + duration + campaign + poutcome + balance. 
 
 ### Forward Selection Using AIC - (Less penalize on larger models, so creates more complicated model, but better predictive performance)
+
 ```{r, message=FALSE, warning = FALSE, echo = FALSE, include=FALSE}
 f_AIC <- step(glm(y~1, binomial, lr.bank.data),
      scope = ~age+job+marital+education+default+balance+housing+loan+contact+day+month+duration+campaign+pdays+previous+poutcome,
@@ -604,6 +609,7 @@ f_AIC
 According to this criteria, we excluded previous, pdays, default, and age. Our model is y ~ duration + poutcome + month + contact + housing + job + campaign + loan + marital + education + day + balance. 
 
 ### Forward Selection Using BIC - (More penalize on larger models, builds simpler models, less complicated and better for inference)
+
 ```{r, message=FALSE, warning = FALSE, echo = FALSE, include=FALSE}
 f_BIC <- step(glm(y~1, binomial, lr.bank.data),
      scope = ~age+job+marital+education+default+balance+housing+loan+contact+day+month+duration+campaign+pdays+previous+poutcome,
@@ -611,11 +617,12 @@ f_BIC <- step(glm(y~1, binomial, lr.bank.data),
      k = log(dim(lr.bank.data)[1]))
 f_BIC
 #previous, default, age, pdays, job
-y ~ duration + poutcome + month + contact + housing + campaign + loan + marital + education + balance + day
+#y ~ duration + poutcome + month + contact + housing + campaign + loan + marital + education + balance + day
 ```
 According to this criteria, we excluded previous, default, age, pdays, and job. Our model is y ~ duration + poutcome + month + contact + housing + campaign + loan + marital + education + balance + day.
 
 ### Backward Selection Using AIC
+
 ```{r, message=FALSE, warning = FALSE, echo = FALSE, include=FALSE}
 b_AIC <- step(glm(y~., binomial, lr.bank.data),
      direction = "backward")
@@ -626,6 +633,7 @@ b_AIC
 According to this criteria, we excluded previous, pdays, default, and age. Our model is y ~ duration + poutcome + month + contact + housing + job + campaign + loan + marital + education + day + balance. Which is the same as Forward Selection using AIC.
 
 ### Backward Selection Using BIC
+
 ```{r, message=FALSE, warning = FALSE, echo = FALSE, include=FALSE}
 b_BIC <- step(glm(y~., binomial, lr.bank.data),
      direction = "backward",
@@ -635,6 +643,7 @@ b_BIC
 #y ~ marital + education + balance + housing + loan + contact + day + month + duration + campaign + poutcome
 
 ```
+
 According to this criteria, we excluded previous, default, age, pdays, job. Our model is y ~ marital + education + balance + housing + loan + contact + day + month + duration + campaign + poutcome. Which is the same as Forward Selection using BIC. 
 
 ### Both Directions Using AIC
@@ -646,9 +655,11 @@ both_AIC
 #pdays, default, age, previous
 #y ~ duration + poutcome + month + contact + housing + job + campaign + loan + marital + day + education + balance
 ```
+
 Here, we exclude pdays, default, age, and previous. Our model is y ~ duration + poutcome + month + contact + housing + job + campaign + loan + marital + day + education + balance. 
 
 ### Both Directions Using BIC
+
 ```{r, message=FALSE, warning = FALSE, echo = FALSE, include=FALSE}
 both_BIC <- step(glm(y~1, binomial, lr.bank.data),
      scope = ~age+job+marital+education+default+balance+housing+loan+contact+day+month+duration+campaign+pdays+previous+poutcome,
@@ -662,9 +673,19 @@ both_BIC
 Here, we exclude previous, default, age, pdays, and job. Our model is y ~ duration + poutcome + month + contact + housing + campaign + loan + marital + education + balance + day.
 
 ### Building a Confusion Matrix with our final logistic regression model
+
 Again, our final model is the one with variables selected from AIC. 
 
-y ~ duration + poutcome + month + contact + housing + job + campaign + loan + marital + day + education + balance
+*y ~ duration + poutcome + month + contact + housing + job + campaign + loan + marital + day + education + balance*
+
+Here is a brief summary of our final logistic model. The stars on the very right column indicates the significance of the variable. Here, R automatically created dummy variables for categorical variables with more than one category. As we can see, many of the variables that are left after variable selection are significant, with only a few insignificant variables (those which have a blank on the very right column, for instance poutcomeunknown and maritalsingle.) Furthermore, to briefly interpret the estimate of each variable, it means each one unit change in (the variable) will increase the log odds of our response variable by (the estimate). For instance, each one unit change in duration will increase the log odds of subscribing by 4.242e-03, and with the p-value and three stars on the very right, we know that it is somewhat significant in determining our response.
+
+Additionally, the difference between null deviance and residual deviance tells us that the model is a good fit. Greater the difference better the model. Here, we have somewhat a good model, as null deviance is the value when we only have intercept in our equation with no variables, and residual deviance is the value when we take all of our variables into account.
+
+```{r}
+summary(glm(y ~ duration + poutcome + month + contact + housing + job + campaign + loan + marital + day + education + balance, binomial(link = "logit"),lr.bank.data))
+```
+
 
 The confusion matrix and our classification accuracy with this model are below.
 
@@ -673,7 +694,7 @@ The confusion matrix and our classification accuracy with this model are below.
 logistic.model.AIC <- glm(y ~ duration + poutcome + month + contact + housing + job + campaign + loan + marital + day + education + balance, binomial(link = "logit"),lr.bank.data)
 
 pred = format(round(predict(logistic.model.AIC, newdata = bank.test, type = "response")))
-conf = table(pred, as.factor(bank.test$y));conf
+conf = table(pred, as.factor(bank.test$y))
 
 #Tuning parameters
 pred2 = predict(logistic.model.AIC, newdata = bank.test, type = "response")
@@ -683,13 +704,26 @@ accuracy.log = performance(pred.tune.log, measure = "acc", x.measure = "cutoff")
 plot(accuracy.log)
 plot(perf.tune.log) ##selecting default threshold value of 0.5
 auc.log = as.numeric(performance(pred.tune.log, measure = "auc")@y.values)
-auc.log
+
 
 #Classification accuracy
-log.acc = (conf[1,1]+conf[2,2])/(sum(conf)); log.acc
+log.acc = (conf[1,1]+conf[2,2])/(sum(conf))
 ```
 
+The confusion matrix is, and the corresponding classification accuracy is `r log.acc`
+
+This is a very robust classification accuracy since it correctly for roughly 90% of our classifications.
+
+```{r}
+conf
+```
+
+The ROC and corresponding Area Under Curve (AUC): `r auc.log`
+
+AUC - ROC curve is also a performance measurement for classification models. ROC is a probability curve and AUC represents degree or measure of separability. It tells how much model is capable of distinguishing between classes. Higher the AUC, the better the model accuracy. Therefore, our model achieved also 90% of accuracy as well, signifying that we have successfully pruned down the variables that are important.
+
 # Method 2. Random Forest
+
 The second method that we choose is Random Forest. A Random Forest is a collection of decision trees and average/majority vote of the forest is selected as the predicted output. The reason that we choose it is because a Random Forest model will be less prone to over fitting than a decision tree, and gives a more generalized solution. Random Forest is more robust and accurate than decision trees.
 
 Particularly, we would first investigate the importance of variables and choose sqrt(p) as our a rule of thumb for amount of predictors. We would then use mtry from 1 to p and then use CV. 
@@ -705,7 +739,6 @@ varImpPlot(rf)
 #duration is the most important variable, default is the least important
 prediction_rf <- format(predict(rf, newdata = bank.test, type = "response"))
 conf_rf <- table(prediction_rf, as.factor(bank.test$y))
-conf_rf
 
 predictions = as.vector(rf$votes[,2])
 pred=prediction(predictions,bank.train$y)
@@ -717,11 +750,18 @@ perf_ROC=performance(pred,"tpr","fpr") #plot the actual ROC curve
 plot(perf_ROC, main="ROC plot")
 
 #Classification accuracy
-classicitation_accuracy_rf <- (conf_rf[1,1]+conf_rf[2,2])/(sum(conf_rf)); classicitation_accuracy_rf
+classicitation_accuracy_rf <- (conf_rf[1,1]+conf_rf[2,2])/(sum(conf_rf))
 ```
-We see that in both cases, duration is the most important variable, whereas default is the least important variable. Additionally, the classification accuracy according to our model is `r classicitation_accuracy_rf`, very close to what we get in our logistic model after AIC variable selection. 
+From the importance plots, we see that duration is the most important according to both "MeanDecreaseAccuracy" and "MeanDecreaseGini" whereas default are the worst in both cases. This somewhat corresponds with our results obtained from the stepwise variable seleciton process. 
 
-## Method 3. SVM
+Furthermore, the corresponding confusion matrix is and the corresponding classification accuracy is `r classicitation_accuracy_rf`, very close to what we get in our logistic model after AIC variable selection. 
+```{r}
+conf_rf
+```
+
+However, the AUC that we computed from the ROC plot had a rather significant increase to `r AUC`. This is almost 3% higher than what we have obtained from our logistic model.
+
+## Method 3. SVM (Extra)
 ```{r}
 split = sample.split(bank_small$y,SplitRatio = 0.80)
 train.svm = subset(bank_small, split == TRUE)
