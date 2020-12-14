@@ -1,6 +1,6 @@
 ---
 title: "STA141A Final Project"
-author: "Animay Sharma, Aditya Kallepalli, Charles Chien"
+author: "Animay Sharma, Aditya Kallepalli, Charles Chien, Shaumik Pathak"
 date: "12/14/2020"
 output:
   pdf_document: default
@@ -741,12 +741,6 @@ summary(glm(y ~ duration + poutcome + month + contact + housing + job + campaign
 ```
 
 
-Here are our AUC - ROC plots. AUC - ROC curve is a performance measurement for classification models. ROC is a probability curve and AUC represents degree or measure of separability. It tells how much model is capable of distinguishing between classes. Higher the AUC, the better the model accuracy. 
-
-The ROC and corresponding Area Under Curve (AUC): `r auc.log`
-
-Therefore, our model achieved also 90% of accuracy as well, signifying that we have successfully pruned down the variables that are important.
-
 ```{r, message=FALSE, warning = FALSE, echo = FALSE}
 #Build logistic model with selected significant variables using AIC stepwise variable selection
 logistic.model.AIC <- glm(y ~ duration + poutcome + month + contact + housing + job + campaign + loan + marital + day + education + balance, binomial(link = "logit"),lr.bank.data)
@@ -767,6 +761,12 @@ auc.log = as.numeric(performance(pred.tune.log, measure = "auc")@y.values)
 #Classification accuracy
 log.acc = (conf[1,1]+conf[2,2])/(sum(conf))
 ```
+Here are our AUC - ROC plots. AUC - ROC curve is a performance measurement for classification models. ROC is a probability curve and AUC represents degree or measure of separability. It tells how much model is capable of distinguishing between classes. Higher the AUC, the better the model accuracy. 
+
+The ROC and corresponding Area Under Curve (AUC): `r auc.log`
+
+Therefore, our model achieved also 90% of accuracy as well, signifying that we have successfully pruned down the variables that are important.
+
 
 The confusion matrix is, 
 
@@ -780,7 +780,7 @@ This is a very robust classification accuracy since it correctly for roughly 90%
 
 Now, we will move on to our second method, Random Forest and see how it compares. 
 
-# Method 2. Random Forest
+## Method 2. Random Forest
 
 The second method that we choose is Random Forest. A Random Forest is a collection of decision trees and average/majority vote of the forest is selected as the predicted output. The reason that we choose it is because a Random Forest model will be less prone to over fitting than a decision tree, and gives a more generalized solution. Random Forest is more robust and accurate than decision trees.
 
@@ -885,7 +885,7 @@ abline(0,1,col="red", lty = 2)
 
 After comparing all of the models by checking the accuracy as well as the AUC, we conclude that the random forest model is more suitable for the prediction model that is required to predict clients that will make a deposit and those who will not make a deposit. The random forest model and the logistic regression model have very similar accuracies with the random forest model having an accuracy of approximately 0.904 while the logistic regression model having an accuracy of approximately 0.902. This means that the random forest method has better predictive capabilities than the logistic regression model. We can also compare the AUC's of the model and see that the logistic regression model has a lower AUC than the random forest model. The logistic regression model has an AUC of 0.904 and the random forest model has an AUC of 0.926 which makes the random forest model better. Therefore, We will choose the Random Forest Model to use for our prediction model.
 
-# Code Appendix
+# 5. Code Appendix
 
 ```{r, ref.label=knitr::all_labels(),echo=TRUE,eval=FALSE}
 ```
