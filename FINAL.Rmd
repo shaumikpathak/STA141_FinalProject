@@ -785,6 +785,19 @@ Particularly, we would first investigate the importance of variables and choose 
 
 ```{r, message=FALSE,warning=FALSE, echo = FALSE}
 #create random forest model with all variables, mtry = sqrt(p) for classification
+control1 = trainControl(method = "repeatedcv", number=10, repeats=3, search="grid")
+tuning.grid = expand.grid(mtry = sqrt(dim(bank.train)[2]-1))
+model.list = list()
+for (ntree in c(100,200,300,500)){
+  set.seed(123)
+  tune.fit = randomForest(as.factor(y)~., data = bank.train, metric=metric, tuneGrid = tuning.grid, trcontrol = control1, ntree = ntree )
+  index.tune = toString(ntree)
+  model.list[[index.tune]] = tune.fit
+  }
+tuning.results = resamples(model.list)
+summrary(tuning.results)
+dotplot(tuning.results)
+
 rf <- randomForest(as.factor(y)~ ., data = bank.train, importance = TRUE, mtry = sqrt(dim(bank.train)[2]-1), ntree = 300)
 #importance of variables
 importance_of_variables <- importance(rf)
