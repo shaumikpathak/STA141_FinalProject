@@ -1,6 +1,6 @@
 ---
 title: "STA141A Final Project"
-author: "Animay Sharma, Aditya Kallepalli, Charles Chien"
+author: "Animay Sharma, Aditya Kallepalli, Charles Chien, Shaumik Pathak"
 date: "12/14/2020"
 output:
   pdf_document: default
