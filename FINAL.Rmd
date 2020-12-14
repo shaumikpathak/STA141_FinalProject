@@ -786,7 +786,7 @@ Now, we will move on to our second method, Random Forest and see how it compares
 
 The second method that we choose is Random Forest. A Random Forest is a collection of decision trees and average/majority vote of the forest is selected as the predicted output. The reason that we choose it is because a Random Forest model will be less prone to over fitting than a decision tree, and gives a more generalized solution. Random Forest is more robust and accurate than decision trees.
 
-Particularly, we would first tune the model so that we find our ideal amount of ntree and mtry. Typically, the rule of thumb is to choose sqrt(p) for classification RF's for mtry. Then, we will investigate the importance of variables in our model. 
+Particularly, we would first tune the model so that we find our ideal amount of ntree and mtry (Use mtry from 1 to p and then use CV). Typically, the rule of thumb is to choose sqrt(p) for classification RF's for mtry. Then, we will investigate the importance of variables in our model. 
 
 ```{r, message=FALSE,warning=FALSE, echo = FALSE}
 #create random forest model with all variables, mtry = sqrt(p) for classification
