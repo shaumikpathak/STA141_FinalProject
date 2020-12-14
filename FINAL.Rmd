@@ -826,7 +826,7 @@ We used a manual tuning method (comparing between common choices 100, 200, 300, 
 
 As for mtry, we have ran the tuneRF function, which yielded an optimal result of 4. This corresponds to our rule of thumb of sqrt(16) which equals to 4. 
 
-Then, we built our RF using such parameters. From the importance plots, we see that duration is the most important according to both "MeanDecreaseAccuracy" and "MeanDecreaseGini" whereas default are the worst in both cases. This somewhat corresponds with our results obtained from the stepwise variable seleciton process. 
+Then, we built our RF using such parameters. From the importance plots, we see that duration is the most important (has the most predictive power) according to both "MeanDecreaseAccuracy" and "MeanDecreaseGini" whereas default are the worst in both cases. This somewhat corresponds with our results obtained from the stepwise variable seleciton process. 
 
 ```{r, message=FALSE,warning=FALSE, echo = FALSE}
 prediction_rf <- format(predict(rf, newdata = bank.test, type = "response"))
