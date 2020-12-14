@@ -498,9 +498,13 @@ Finally, we will compare these and see how the models compare to each other, and
 
 # 3. Extra-Credit Methods
 
-### First Method: Correlation & Heat Map & Explore Function
+### First Method: Correlogram & Explore Function 
 
-### Second Method: Stepwise (Forward, Backward, Both) Variable Selection using AIC, BIC, and Likelihood Ratio Test (LRT) for our Logistic Regression Model. Specifically, we have computed results for: 
+Correlogram for preliminary variable selection and the explore function for interactive EDA. 
+
+### Second Method: Stepwise Variable Selection for Logistic Regression
+
+We have used (Forward, Backward, Both) Variable Selection using AIC, BIC, and Likelihood Ratio Test (LRT) for our Logistic Regression Model. Specifically, we have computed results for: 
 
   1. LRT Forward - at 5% significance level, dropped variables *age*, *default*, *pdays*, *previous*.
   
@@ -538,7 +542,7 @@ While AIC and BIC are both robust parameters, for the purposes of answering this
 
 ## Method 1. Logistic Regression & Model Selection
 
-Here is a summary of the logistic regression model with all 16 of the input variables (more interpretation of the output below). However, we would like to start with variable selection first to prune down this model. 
+Here is a summary of the logistic regression model with all 16 of the input variables (more interpretation of the output below). However, we would like to start with stepwise variable selection first to prune down this model. 
 ```{r, echo=FALSE}
 #make copy of data
 lr.bank.data <- bank.train
