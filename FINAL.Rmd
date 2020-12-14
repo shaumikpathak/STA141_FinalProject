@@ -499,7 +499,7 @@ While AIC and BIC are both robust parameters, for the purposes of answering this
 
 ## Method 1. Logistic Regression & Model Selection
 
-Here is a summary of a logistic regression model with all 16 of the input variables: 
+Here is a summary of the logistic regression model with all 16 of the input variables (more interpretation of the output below). However, we would like to start with variable selection first. 
 ```{r, echo=FALSE}
 #make copy of data
 lr.bank.data <- bank.train
@@ -510,7 +510,6 @@ logistic.model <- glm(as.factor(y)~., binomial(link = "logit"),lr.bank.data)
 #summary of logistic model
 summary(logistic.model)
 ```
-
 
 ### Backward Stepwise Model Selection Using LRT
 ```{r, message=FALSE, warning = FALSE, echo = FALSE, include=FALSE}
@@ -750,11 +749,11 @@ perf_ROC=performance(pred,"tpr","fpr") #plot the actual ROC curve
 plot(perf_ROC, main="ROC plot")
 
 #Classification accuracy
-classicitation_accuracy_rf <- (conf_rf[1,1]+conf_rf[2,2])/(sum(conf_rf))
+classification_accuracy_rf <- (conf_rf[1,1]+conf_rf[2,2])/(sum(conf_rf))
 ```
 From the importance plots, we see that duration is the most important according to both "MeanDecreaseAccuracy" and "MeanDecreaseGini" whereas default are the worst in both cases. This somewhat corresponds with our results obtained from the stepwise variable seleciton process. 
 
-Furthermore, the corresponding confusion matrix is and the corresponding classification accuracy is `r classicitation_accuracy_rf`, very close to what we get in our logistic model after AIC variable selection. 
+Furthermore, the corresponding confusion matrix is and the corresponding classification accuracy is `r classification_accuracy_rf`, very close to what we get in our logistic model after AIC variable selection. 
 ```{r}
 conf_rf
 ```
@@ -789,7 +788,7 @@ Support Vector Machine is a very popular classification technique used in Machin
 
 For the SVM model, we decided to use a relatively smaller subset of the actual dataset. This was because it is computationally costly to run SVM and since this was a very huge dataset, it made more sense to use the subset of the dataset which we named "bank_small".
 
-The accuracy that we obtained from running this model on the "bank_small" is `r acc.svm`. We can see that this is less than the accuracy of the logistic regression model that we trained which was `r log.acc`. Additionally, we found that it was also less than the classification accuracy of the random forest model which is `r classification_accuracy`.
+The accuracy that we obtained from running this model on the "bank_small" is `r acc.svm`. We can see that this is less than the accuracy of the logistic regression model that we trained which was `r log.acc`. Additionally, we found that it was also less than the classification accuracy of the random forest model which is `r classification_accuracy_rf`.
 
 Moreover, from doing additional computation, we found out the Area Under the Curve for the ROC curve for each of the models. This area told us how much each of the models is capable of distinguishing between each of the classes. The AUC we got for the SVM model is `r auc.svm` as compared to the Logistic Regression AUC which was `r auc.log`.
 
@@ -824,5 +823,6 @@ abline(0,1,col="red", lty = 2)
 After comparing all of the models by checking the accuracy as well as the AUC, we conclude that the random forest model is more suitable for the prediction model that is required to predict clients that will make a deposit and those who will not make a deposit. The random forest model and the logistic regression model have very similar accuracies with the random forest model having an accuracy of approximately 0.904 while the logistic regression model having an accuracy of approximately 0.902. This means that the random forest method has better predictive capabilities than the logistic regression model. We can also compare the AUC's of the model and see that the logistic regression model has a lower AUC than the random forest model. The logistic regression model has an AUC of 0.904 and the random forest model has an AUC of 0.926 which makes the random forest model better. Therefore, We will choose the Random Forest Model to use for our prediction model.
 
 # Code Appendix
+
 ```{r, ref.label=knitr::all_labels(),echo=TRUE,eval=FALSE}
 ```
