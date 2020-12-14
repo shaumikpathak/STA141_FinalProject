@@ -470,19 +470,17 @@ To answer our question of interest, building a predictive categorical model, we 
 
 #### 1. Logistic regression, particularly using different stepwise methods (backward, forward, both) and different selection criteria (Likelihood-Ratio Test, AIC, BIC) to conduct variable selection for building the most effective model.
 
-#### 2. Random Forest
-
-#### 3. SVM (Extra Method)
-
-Reasons for selecting these predictive techniques:
-
-Logistic Regression:
-
 We chose logistic regression as one of the modeling technique we would perform due to a couple of factors. It is relatively easy to implement on categorical data and the parameters can explain the significance of each predictor variable. However, we still do acknowledge some of the down sides to this modeling technique. Colinearity of the variables can affect the accuracy of the model and proper selection of features is required. However, those might be potentially addressed by our stepwise selection methods.
 
-Random Forest: 
+#### 2. Random Forest
 
 The reason we chose random forest for this predictive model was because random forest is much better than logistic regression at handling multi-colinearity. Random Forest is a collection of decision trees and average/majority vote of the forest is selected as the predicted output. It is less prone to overfitting than regular Decision trees, and gives a more generalized solution (Varghese, Comparative study on Classic Machine learning Algorithms 2019). It is also usually more robust and accurate than decision trees [2]. The random forest model can also deal with categorical data better than the logistic regression can. It usually comes up with a robust and accurate model that can handle large varieties of input data with binary, categorical, and continuous features, which we do have in this bank dataset. While Random Forest can give a probability over the prediction and supports implicit feature selection and derives feature importance, it is not a well descriptive model over the prediction [3] (Varghese, Comparative Study on Classic Machine learning Algorithms&nbsp;, Part-2 2018). A logistic regression model does a better job deriving the significance of each of the predictor variables which would give us better incites on the data.
+
+*[2] Varghese, D. (2019, May 10). Comparative study on Classic Machine learning Algorithms. Retrieved December 14, 2020, from https://towardsdatascience.com/comparative-study-on-classic-machine-learning-algorithms-24f9ff6ab222*
+
+*[3] Varghese, D. (2018, December 11). Comparative Study on Classic Machine learning Algorithms&nbsp;, Part-2. Retrieved December 14, 2020, from https://medium.com/@dannymvarghese/comparative-study-on-classic-machine-learning-algorithms-part-2-5ab58b683ec0*
+
+#### 3. SVM (Extra Method)
 
 Support Vector Machine(SVM): 
 
@@ -490,11 +488,6 @@ Support Vector Machine(SVM):
 
 Finally, we will compare these and see how the models compare to each other, and select a ultimate winner between the two. Our criteria for selecting the model will be based on the accuracy of the model and the AUC of the model.
 
-
-
-*[2] Varghese, D. (2019, May 10). Comparative study on Classic Machine learning Algorithms. Retrieved December 14, 2020, from https://towardsdatascience.com/comparative-study-on-classic-machine-learning-algorithms-24f9ff6ab222*
-
-*[3] Varghese, D. (2018, December 11). Comparative Study on Classic Machine learning Algorithms&nbsp;, Part-2. Retrieved December 14, 2020, from https://medium.com/@dannymvarghese/comparative-study-on-classic-machine-learning-algorithms-part-2-5ab58b683ec0*
 
 # 3. Extra-Credit Methods
 
