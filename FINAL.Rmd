@@ -536,6 +536,9 @@ While AIC and BIC are both robust parameters, for the purposes of answering this
 
 ### Third Method: Support Vector Machine(SVM) Method 
 
+<span style="color:red"> Added in the end for extra credit. See below sections for more information on the analysis and comparison of SVM against Logistic and Random Forest. </span>
+
+Finally, we will compare these and see how the models compare to each other, and select a ultimate winner between the two. Our criteria for selecting the model will be based on the accuracy of the model and the AUC of the model.
 
 # 4. Results
 
