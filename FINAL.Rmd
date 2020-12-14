@@ -30,6 +30,7 @@ library(ROCR)
 library(e1071)
 
 
+
 #import dataset
 bank.data <- read_delim("datasets/bank-full.csv",";", escape_double = FALSE, trim_ws = TRUE)
 # small datset for computationaly intensive tasks
@@ -749,17 +750,14 @@ logistic.model.AIC <- glm(y ~ duration + poutcome + month + contact + housing + 
 
 pred = format(round(predict(logistic.model.AIC, newdata = bank.test, type = "response")))
 conf = table(pred, as.factor(bank.test$y))
-
 #Tuning parameters
 pred2 = predict(logistic.model.AIC, newdata = bank.test, type = "response")
 pred.tune.log = prediction(pred2, bank.test$y)
 perf.tune.log = performance(pred.tune.log, measure = "tpr", x.measure = "fpr")
 #accuracy.log = performance(pred.tune.log, measure = "acc", x.measure = "cutoff")
 #plot(accuracy.log)
-plot(perf.tune.log) ##selecting default threshold value of 0.5
+plot(perf.tune.log, main="ROC CURVE FOR LOGISTIC REGRESSION METHOD")
 auc.log = as.numeric(performance(pred.tune.log, measure = "auc")@y.values)
-
-
 #Classification accuracy
 log.acc = (conf[1,1]+conf[2,2])/(sum(conf))
 ```
@@ -796,14 +794,14 @@ Particularly, we would first tune the model so that we find our ideal amount of 
 #control1 = trainControl(method = "repeatedcv", number=10, repeats=3, search="grid")
 #tuning.grid = expand.grid(mtry = sqrt(dim(bank.train)[2]-1))
 #model.list = list()
-#for (ntree in c(100,200,300,400, 500)){
+#for (ntree in c(100,200,300,400,500)){
 #  set.seed(123)
 #  tune.fit = randomForest(as.factor(y)~., data = bank.train, metric=metric, tuneGrid = tuning.grid, trcontrol = #control1, ntree = ntree )
 #  index.tune = toString(ntree)
 #  model.list[[index.tune]] = tune.fit
 #  }
 #tuning.results = resamples(model.list)
-#summrary(tuning.results)
+#summary(tuning.results)
 #dotplot(tuning.results)
 
 #Finding mtry
@@ -839,7 +837,7 @@ perf_AUC=performance(pred,"auc") #Calculate the AUC value
 AUC=perf_AUC@y.values[[1]]
 
 perf_ROC=performance(pred,"tpr","fpr") #plot the actual ROC curve
-plot(perf_ROC, main="ROC plot")
+plot(perf_ROC, main="ROC CURVE FOR RANDOM FOREST METHOD")
 
 #Classification accuracy
 classification_accuracy_rf <- (conf_rf[1,1]+conf_rf[2,2])/(sum(conf_rf))
@@ -870,7 +868,7 @@ svm.perf = performance(svm.pred, "tpr",  "fpr")
 svm.perf.acc = performance(svm.pred, 'acc')
 auc.svm = performance(svm.pred, 'auc')
 auc.svm=auc.svm@y.values[[1]]
-plot(svm.perf)
+plot(svm.perf, main = "ROC CURVE FOR ")
 plot(svm.perf.acc)
 conf.svm = table(pred.svm, as.factor(test.svm$y))
 acc.svm = (conf.svm[1,1]+conf.svm[2,2])/(sum(conf.svm))
@@ -880,11 +878,11 @@ acc.svm = (conf.svm[1,1]+conf.svm[2,2])/(sum(conf.svm))
 
 Support Vector Machine is a very popular classification technique used in Machine Learning. It is widely used due to having a significant accuracy. However, this type of model is commonly used for relatively smaller datasets. We mainly decided to use SVM becuase of the significant accuracy that is usually obtained from this model. 
 
-For the SVM model, we decided to use a relatively smaller subset of the actual dataset. This was because it is computationally costly to run SVM and since this was a very huge dataset, it made more sense to use the subset of the dataset which we named "bank_small".
+For the SVM model, we decided to use a relatively smaller subset of the actual dataset. This was because it is computationally costly to run SVM and since this was a very huge dataset, it made more sense to use the subset of the dataset which we named "bank_small". The bank_small dataset is a 10% sample of the larger bank_full dataset. While using the bank_full dataset with a radial kernel, we found that it was taking extremely long for the process to finish. So, we split the bank_small model into a 80-20 format (train/test) and changed the kernel type to linear since our data is largely linear. The process finished fairly quickly after that. 
 
-The accuracy that we obtained from running this model on the "bank_small" is `r acc.svm`. We can see that this is less than the accuracy of the logistic regression model that we trained which was `r log.acc`. Additionally, we found that it was also less than the classification accuracy of the random forest model which is `r classification_accuracy_rf`.
+The accuracy that we obtained from running this model on the "bank_small" is `r acc.svm`. We can see that this is less than the accuracy of the logistic regression model that we trained which was `r log.acc`. Additionally, we found that it was also less than the classification accuracy of the random forest model which is `r classification_accuracy_rf`. The reduced accuracy of the SVM model could be a result of using a smaller dataset (10% sample of full dataset) when compared to logistic regression and random forest methods. 
 
-Moreover, from doing additional computation, we found out the Area Under the Curve for the ROC curve for each of the models. This area told us how much each of the models is capable of distinguishing between each of the classes. The AUC we got for the SVM model is `r auc.svm` as compared to the Logistic Regression AUC which was `r auc.log` and Random Forest `r AUC`
+Moreover, from doing additional computation, we found out the Area Under the Curve for the ROC curve for each of the models. This area told us how much each of the models is capable of distinguishing between each of the classes. The AUC we got for the SVM model is `r auc.svm` as compared to the Logistic Regression AUC which was `r auc.log` and Random Forest `r AUC`.
 
 By looking at all these scores and comparing them with the different model that we had, we came to a conclusion that for this particular dataset, SVM is not the best model.
 
