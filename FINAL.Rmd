@@ -3,9 +3,9 @@ title: "STA141A Final Project"
 author: "Animay Sharma, Aditya Kallepalli, Charles Chien"
 date: "12/14/2020"
 output:
-  pdf_document: default
   html_document:
     df_print: paged
+  pdf_document: default
 ---
 
 ```{r, message=FALSE, warning = FALSE, echo=FALSE}
@@ -804,7 +804,7 @@ conf
 
 ```{r, message=FALSE, warning = FALSE, echo = FALSE}
 comparison.table = data.frame(Method = c('Random Forest', 'Logistic Regression'), Accuracy = NA, AUC = NA )
-comparison.table$Accuracy = c(classicitation_accuracy_rf, log.acc)
+comparison.table$Accuracy = c(classification_accuracy_rf, log.acc)
 comparison.table$AUC = c(AUC, auc.log)
 kable(comparison.table)
 
