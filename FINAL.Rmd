@@ -781,7 +781,7 @@ Now, we will move on to our second method, Random Forest and see how it compares
 
 The second method that we choose is Random Forest. A Random Forest is a collection of decision trees and average/majority vote of the forest is selected as the predicted output. The reason that we choose it is because a Random Forest model will be less prone to over fitting than a decision tree, and gives a more generalized solution. Random Forest is more robust and accurate than decision trees.
 
-Particularly, we would first investigate the importance of variables and choose sqrt(p) as our a rule of thumb for amount of predictors. We used a manual tuning method to find the optimal ntree value for our random forest model which ended up being 300. This value of the entry had the highest accuracy rate at a value of approximately 0.904
+Particularly, we would first investigate the importance of variables and choose sqrt(p) as our a rule of thumb for amount of predictors. We used a manual tuning method to find the optimal ntree value for our random forest model which ended up being 500. The OOB for ntree = 500 was the lowest at 9.45% as well as the confusion matrix classification error was also the lowest compared to the values for the other candidate ntree values.
 
 ```{r, message=FALSE,warning=FALSE, echo = FALSE}
 #create random forest model with all variables, mtry = sqrt(p) for classification
