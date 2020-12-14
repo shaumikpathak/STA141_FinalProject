@@ -488,12 +488,13 @@ The reason we chose random forest for this predictive model was because random f
 
 #### 3. SVM (Extra Method)
 
-Support Vector Machine(SVM): 
+ Support Vector Machine(SVM) is a supervised learning model that uses classification algorithms  for group classification problems. An SVM finds an optimal hyperplane as the solution to the learning problem. 
 
 <span style="color:red"> Added in the end for extra credit. See below sections for more information on the analysis and comparison of SVM against Logistic and Random Forest. </span>
 
 Finally, we will compare these and see how the models compare to each other, and select a ultimate winner between the two. Our criteria for selecting the model will be based on the accuracy of the model and the AUC of the model.
 
+*[4] Evgeniou, Theodoros & Pontil, Massimiliano. (2001). Support Vector Machines: Theory and Applications. 2049. 249-257. 10.1007/3-540-44673-7_12. 
 
 # 3. Extra-Credit Methods
 
@@ -530,9 +531,9 @@ The reason we think AIC is the most robust and appropriate and do not use LRT no
 
 While AIC and BIC are both robust parameters, for the purposes of answering this statistical question of interest, we choose AIC over BIC. BIC usually penalizes complicated models more than AIC. Naturally, AIC would create a more complicated model (with more predictors) yet it is actually better for prediction. The Akaike information criterion is known to be efficient in the sense that its prediction performance is asymptotically equivalent to the best offered by the candidate models (Ding, Tarokh, &amp; Yang, Bridging AIC and BIC: a new criterion for autoregression 2016)[4]. When the true model is not in the candidate model set the AIC is efficient, in that it will asymptotically choose whichever model minimizes the mean squared error of prediction/estimation. The BIC is not efficient under these circumstances (Vrieze, Model selection and psychological theory: a discussion of the differences between the Akaike information criterion (AIC) and the Bayesian information criterion (BIC) 2012) [5]. Models built using BIC would be less complicated, which would be better for inference, but worse than AIC in terms of predictive performance, which is contradicting our main goal here.
 
-*[4] Ding, J., Tarokh, V., &amp; Yang, Y. (2016, August 24). Bridging AIC and BIC: A new criterion for autoregression. Retrieved December 13, 2020, from https://arxiv.org/abs/1508.02473*
+*[5] Ding, J., Tarokh, V., &amp; Yang, Y. (2016, August 24). Bridging AIC and BIC: A new criterion for autoregression. Retrieved December 13, 2020, from https://arxiv.org/abs/1508.02473*
 
-*[5] Vrieze, S. (2012, June). Model selection and psychological theory: A discussion of the differences between the Akaike information criterion (AIC) and the Bayesian information criterion (BIC). Retrieved December 13, 2020, from https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3366160/*
+*[6] Vrieze, S. (2012, June). Model selection and psychological theory: A discussion of the differences between the Akaike information criterion (AIC) and the Bayesian information criterion (BIC). Retrieved December 13, 2020, from https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3366160/*
 
 ### Third Method: Support Vector Machine(SVM) Method 
 
