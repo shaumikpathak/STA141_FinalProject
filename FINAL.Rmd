@@ -108,7 +108,9 @@ This data description is from the UCI machine learning repository for the datase
 
 3 - marital : marital status (categorical: 'divorced','married','single','unknown'; note: 'divorced' means divorced or widowed)
 
-4 - education (categorical: 'basic.4y','basic.6y','basic.9y','high.school','illiterate','professional.course','university.degree','unknown')
+4 - education (categorical: 'basic.4y','basic.6y','basic.9y','high.school','illiterate','professional.course','university.degree',
+
+'unknown')
 
 5 - default: has credit in default? (categorical: 'no','yes','unknown')
 
@@ -133,7 +135,7 @@ This data description is from the UCI machine learning repository for the datase
 15 - poutcome: outcome of the previous marketing campaign (categorical: 'failure','nonexistent','success')
 
 Output variable (desired target):
-y - has the client subscribed a term deposit? (binary: 'yes','no')
+y - has the client subscribed a term deposit? (binary: 'yes' (1),'no'(1))
 
 
 
@@ -147,7 +149,7 @@ To answer the primary scientific question of interest, we would fit our model by
 
 2. Random Forest
 
-3. SVM (Extra Method)
+3. Support Vector Machines (Extra Method)
 
 For our first method, We would then use both backward and forward stepwise model selection using a likelihood ratio test (LRT) to conduct a heauristic model selection and prune down our model. We would also use AIC and BIC and compare the results of those with LRT. Ultimately, out of all these variable selection methods, we would choose only one logistic regression model that is the most robust among the all.
 
@@ -226,6 +228,7 @@ deposit.status = bank.data$y
 A short interpretation of the Exploratory Data Analysis is as follows:
 
 #### 1.) Age: 
+
 Summary statistics of age are:
 
     Mean Age: 40.936
@@ -243,6 +246,7 @@ age.desc = bank.data %>% group_by(y) %>% summarise(age.mean = mean(age), .groups
 ```
 
 #### 2.) Jobs: 
+
 We can see a distribution of the types of jobs that dataset contains:
 
      admin.        = 5 171 (11.4%)
@@ -266,6 +270,7 @@ ggplot(bank.data, aes(x=bank.data$job,fill=deposit.status)) + geom_bar(position 
 ```
 
 #### 3.) Marital Status:
+
 Distribution of the martial status of customers is as follows:
 
      divorced = 5 207 (11.5%)
@@ -281,6 +286,7 @@ ggplot(bank.data, aes(x=bank.data$marital,fill=deposit.status)) + geom_bar(posit
 ```
 
 #### 4.) Education: 
+
 Summary statistics for educational distribution of the bank's customers are as follows:
 
      primary = 6 851 (15.2%)
@@ -297,6 +303,7 @@ ggplot(bank.data, aes(x=bank.data$education,fill=deposit.status)) + geom_bar(pos
 ```
 
 #### 5.) Defaults:
+
 98.2% of customers do not default on credit payments. 11.8% of customers who do not default on payments make deposits as compared to 6.4% of customers who default on credit. 
 
 ```{r, echo=FALSE, warning=FALSE}
@@ -306,6 +313,7 @@ ggplot(bank.data, aes(x=bank.data$default,fill=deposit.status)) + geom_bar(posit
 ```
 
 #### 6.) Balance:
+
 Summary statistics of balance is as follows:
 
   Minimum balance: -8019
@@ -326,7 +334,8 @@ ggplot(bank.data,aes(x=balance,fill=deposit.status)) + geom_histogram(binwidth=2
 #balance.desc = bank.data %>% group_by(y) %>% summarise(balance.mean = mean(balance), .groups = 'drop')
 ```
 
-#### 7.) Housing Loan
+#### 7.) Housing Loan:
+
 55.6% of the data do have housing loans, which leaves the remaining 44.4% of the data that does not have housing loans. Of those who had a housing loan, Only 36.6% have deposited with the bank, while of those who did not have a housing loan 63.4% have deposited with the bank. Looking at this we can say that those without a
 housing loan are more likely to deposit with the bank from the marketing channels.
 
@@ -336,7 +345,8 @@ ggplot(bank.data, aes(x=bank.data$housing,fill=deposit.status)) + geom_bar(posit
   labs(y= "Number of Clients", x="Contact", title = "Distribution of Client Having a Housing Loan and Deposit")
 ```
 
-#### 8.) Personal loan
+#### 8.) Personal Loan:
+
 Looking at the data for personal loans we can observe that 6.7% of those who said they had a personal loan deposited with the bank while 12.7% percent of those who did not have a personal loan deposited with the bank. We may see this feature in our Logistic regression models as the difference between those that have a loan and do not have a loan is very apparent.
 
 ```{r, echo=FALSE, warning=FALSE}
@@ -346,6 +356,7 @@ ggplot(bank.data, aes(x=bank.data$loan,fill=deposit.status)) + geom_bar(position
 ```
 
 #### 9.) Contact:
+
 Summary statistics for method of contact are as follows:
 
      cellular  = 29 285 (64.8%)
@@ -361,6 +372,7 @@ ggplot(bank.data, aes(x=bank.data$contact,fill=deposit.status)) + geom_bar(posit
 ```
 
 #### 10.) Month:
+
 Summary Statistics for month of contact are as follows:
 
      apr     = 2 932 (6.5%)
@@ -383,6 +395,7 @@ ggplot(bank.data, aes(x=bank.data$month,fill=deposit.status)) + geom_bar(positio
 ```
 
 #### 11.) Duration:
+
 Summary statistics for contact duration are as follows:
 
     min|max  = 0 | 4 918
@@ -401,6 +414,7 @@ duration.desc = bank.data %>% group_by(y) %>% summarise(duration.mean = mean(dur
 ```
 
 #### 12.) Contact:
+
 Summary statistics for number of times contacted are as follows:
 
     min|max  = 1 | 63
@@ -418,6 +432,7 @@ ggplot(bank.data, aes(x=bank.data$contact,fill=deposit.status)) + geom_bar(posit
 ```
 
 #### 13.) Previous Outcome:
+
 Summary statistics for previous ourcome is as follows:
 
     failure = 4 901 (10.8%)
@@ -857,6 +872,10 @@ However, the AUC that we computed from the ROC plot had a rather significant inc
 
 ## Method 3. Support Vector Machine (SVM) - Extra Method
 
+Support Vector Machine is a very popular classification technique used in Machine Learning. It is widely used due to having a significant accuracy. However, this type of model is commonly used for relatively smaller datasets. We mainly decided to use SVM becuase of the significant accuracy that is usually obtained from this model. 
+
+For the SVM model, we decided to use a relatively smaller subset of the actual dataset. This was because it is computationally costly to run SVM and since this was a very huge dataset, it made more sense to use the subset of the dataset which we named "bank_small". The bank_small dataset is a 10% sample of the larger bank_full dataset. While using the bank_full dataset with a radial kernel, we found that it was taking extremely long for the process to finish. So, we split the bank_small model into a 80-20 format (train/test) and changed the kernel type to linear since our data is largely linear. The process finished fairly quickly after that. 
+
 ```{r, echo = FALSE}
 split = sample.split(bank_small$y,SplitRatio = 0.80)
 train.svm = subset(bank_small, split == TRUE)
@@ -878,11 +897,7 @@ conf.svm = table(pred.svm, as.factor(test.svm$y))
 acc.svm = (conf.svm[1,1]+conf.svm[2,2])/(sum(conf.svm))
 ```
 
-### Support Vector Machine (SVM) Interpretation
-
-Support Vector Machine is a very popular classification technique used in Machine Learning. It is widely used due to having a significant accuracy. However, this type of model is commonly used for relatively smaller datasets. We mainly decided to use SVM becuase of the significant accuracy that is usually obtained from this model. 
-
-For the SVM model, we decided to use a relatively smaller subset of the actual dataset. This was because it is computationally costly to run SVM and since this was a very huge dataset, it made more sense to use the subset of the dataset which we named "bank_small". The bank_small dataset is a 10% sample of the larger bank_full dataset. While using the bank_full dataset with a radial kernel, we found that it was taking extremely long for the process to finish. So, we split the bank_small model into a 80-20 format (train/test) and changed the kernel type to linear since our data is largely linear. The process finished fairly quickly after that. 
+### Support Vector Machine (SVM) Interpretation:
 
 The accuracy that we obtained from running this model on the "bank_small" is `r acc.svm`. We can see that this is less than the accuracy of the logistic regression model that we trained which was `r log.acc`. Additionally, we found that it was also less than the classification accuracy of the random forest model which is `r classification_accuracy_rf`. The reduced accuracy of the SVM model could be a result of using a smaller dataset (10% sample of full dataset) when compared to logistic regression and random forest methods. 
 
