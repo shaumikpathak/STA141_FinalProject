@@ -31,9 +31,9 @@ library(e1071)
 
 
 #import dataset
-bank.data <- read_delim("datasets/bank-full.csv",";", escape_double = FALSE, trim_ws = TRUE)
+#bank.data <- read_delim("datasets/bank-full.csv",";", escape_double = FALSE, trim_ws = TRUE)
 # small datset for computationaly intensive tasks
-bank_small <- read_delim("datasets/bank.csv", ";", escape_double = FALSE, trim_ws = TRUE)
+#bank_small <- read_delim("datasets/bank.csv", ";", escape_double = FALSE, trim_ws = TRUE)
 #clean NA vaules
 bank.data = na.omit(bank.data)
 bank_small = na.omit(bank_small)
@@ -855,20 +855,15 @@ The accuracy that we obtained from running this model on the "bank_small" is `r 
 
 Moreover, from doing additional computation, we found out the Area Under the Curve for the ROC curve for each of the models. This area told us how much each of the models is capable of distinguishing between each of the classes. The AUC we got for the SVM model is `r auc.svm` as compared to the Logistic Regression AUC which was `r auc.log` and Random Forest `r AUC`
 
-Additionally, after doing some computation for precision score, we found out that the precision score for SVM model is `r acc.svm`. We found this out by doing (True Positive)/(True Positive + False Positive). As compared to this, the precision score for Logistic Regression model is 0.917958. So we see that the precision score is higher for the Logistic Regression model as compared to the SVM. 
-
 By looking at all these scores and comparing them with the different model that we had, we came to a conclusion that for this particular dataset, SVM is not the best model.
 
-```{r, echo = FALSE}
-conf
-```
 
 ## Final Comparison between Logistic Regression and Random Forest
 
 ```{r, message=FALSE, warning = FALSE, echo = FALSE}
-comparison.table = data.frame(Method = c('Random Forest', 'Logistic Regression'), Accuracy = NA, AUC = NA )
-comparison.table$Accuracy = c(classification_accuracy_rf, log.acc)
-comparison.table$AUC = c(AUC, auc.log)
+comparison.table = data.frame(Method = c('Random Forest', 'Logistic Regression', 'SVM'), Accuracy = NA, AUC = NA )
+comparison.table$Accuracy = c(classification_accuracy_rf, log.acc, acc.svm)
+comparison.table$AUC = c(AUC, auc.log, auc.svm)
 kable(comparison.table)
 
 plot(perf.tune.log, lwd = 3, colorize = TRUE,
@@ -880,6 +875,11 @@ plot(perf_ROC, lwd = 3, colorize = TRUE,
      main = "ROC CURVE FOR RANDOM FOREST METHOD",
      print.cutoffs.at = seq(0,1, by=0.1))
 abline(0,1,col="red", lty = 2)
+
+plot(svm.perf, lwd = 3, colorize = TRUE, 
+     main = "ROC CURVE FOR SVM METHOD",
+     print.cutoffs.at = seq(0,1, by=0.1))
+abline(0,1,col = "red", lty = 2)
 ```
 
 
