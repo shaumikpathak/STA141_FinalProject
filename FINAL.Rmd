@@ -31,9 +31,9 @@ library(e1071)
 
 
 #import dataset
-#bank.data <- read_delim("datasets/bank-full.csv",";", escape_double = FALSE, trim_ws = TRUE)
+bank.data <- read_delim("datasets/bank-full.csv",";", escape_double = FALSE, trim_ws = TRUE)
 # small datset for computationaly intensive tasks
-#bank_small <- read_delim("datasets/bank.csv", ";", escape_double = FALSE, trim_ws = TRUE)
+bank_small <- read_delim("datasets/bank.csv", ";", escape_double = FALSE, trim_ws = TRUE)
 #clean NA vaules
 bank.data = na.omit(bank.data)
 bank_small = na.omit(bank_small)
@@ -58,7 +58,7 @@ bank_small = na.omit(bank_small)
 #master_bin_data = cbind(bin_cat_data,yesno_data,remaining_data)
 #head(master_bin_data)
 
-#create test and train dataset
+#create test and train dataset, 80-20 split
 bank.train = bank.data %>%
   sample_frac(0.8)
 
@@ -318,8 +318,9 @@ From the distribution plot we see that customers with a balance of 3000-6000 acc
 
 ```{r, echo=FALSE, warning=FALSE}
 #Balance
-ggplot(bank.data,aes(x=balance,fill=deposit.status)) + geom_histogram(binwidth=1) +
-  labs(y= "Number of Clients", x="Balance", title = "Distribution of Deposits by Balance")
+#bank.data %>% explore(balance)
+ggplot(bank.data,aes(x=balance,fill=deposit.status)) + geom_histogram(binwidth=200) +
+  labs(y= "Number of Clients", x="Balance", title = "Distribution of Deposits by Balance. Note: outlier values not included") + xlim(-2000, 20000)
 
 #balance.desc = bank.data %>% group_by(y) %>% summarise(balance.mean = mean(balance), .groups = 'drop')
 ```
@@ -468,9 +469,11 @@ The above correlogram is ordered in a first principle component manner. We can s
 
 ### 2.2.3 Prediction Models
 
-To answer our question of interest, building a predictive categorical model, we choose to utilize two different methods. 
+To answer our question of interest, building a predictive categorical model, we choose to utilize three different methods. 
 
-#### 1. Logistic regression, particularly using different stepwise methods (backward, forward, both) and different selection criteria (Likelihood-Ratio Test, AIC, BIC) to conduct variable selection for building the most effective model.
+#### 1. Logistic regression
+
+Particularly we are using different stepwise methods (backward, forward, both) and different selection criteria (Likelihood-Ratio Test, AIC, BIC) to conduct variable selection for building the most effective model.
 
 We chose logistic regression as one of the modeling technique we would perform due to a couple of factors. It is relatively easy to implement on categorical data and the parameters can explain the significance of each predictor variable. However, we still do acknowledge some of the down sides to this modeling technique. Colinearity of the variables can affect the accuracy of the model and proper selection of features is required. However, those might be potentially addressed by our stepwise selection methods.
 
@@ -537,7 +540,7 @@ While AIC and BIC are both robust parameters, for the purposes of answering this
 
 ## Method 1. Logistic Regression & Model Selection
 
-Here is a summary of the logistic regression model with all 16 of the input variables (more interpretation of the output below). However, we would like to start with stepwise variable selection first to prune down this model. 
+Here is a summary of the logistic regression model with all 16 of the input variables. However, we would like to start with stepwise variable selection first to prune down this model. We will then interpret that final pruned model.
 ```{r, echo=FALSE}
 #make copy of data
 lr.bank.data <- bank.train
@@ -731,7 +734,7 @@ Again, our final model is the one with variables selected from AIC (reason expla
 <span style="color:red"> *y ~ duration + poutcome + month + contact + housing + job + campaign + loan + marital + day + education + balance* </span>
 
 
-Here is a brief summary of our final logistic model. The stars on the very right column indicates the significance of the variable. Here, R automatically created dummy variables for categorical variables with more than one category. As we can see, many of the variables that are left after variable selection are significant, with only a few insignificant variables (those which have a blank on the very right column, for instance poutcomeunknown and maritalsingle.) Furthermore, to briefly interpret the estimate of each variable, it means each one unit change in (the variable) will increase the log odds of our response variable by (the estimate). For instance, each one unit change in duration will increase the log odds of subscribing by 4.242e-03, and with the p-value and three stars on the very right, we know that it is somewhat significant in determining our response. Estimates with a positive value would be associated with y = 1 (yes) and estimates with a negative value vice versa.
+Here is a brief summary of our final logistic model. The stars on the very right column indicates the significance of the variable. Here, R automatically created dummy variables for categorical variables with more than one category. As we can see, many of the variables that are left after variable selection are significant, with only a few insignificant variables (those which have a blank on the very right column, for instance poutcomeunknown and maritalsingle.) Furthermore, to briefly interpret the estimate of each variable, it means each one unit change in (the variable) will increase the log odds of our response variable by (the estimate). For instance, each one unit change in duration will increase the log odds of subscribing by 4.242e-03, and with the p-value and three stars on the very right, we know that it is somewhat significant in determining our response. Estimates with a positive value would be associated with y = 1 (yes) and estimates with a negative value vice versa. For instance, more likely to subscribe in December than in August. 
 
 Additionally, the difference between null deviance and residual deviance tells us that the model is a good fit. Greater the difference better the model. Here, we have somewhat a good model, as null deviance is the value when we only have intercept in our equation with no variables, and residual deviance is the value when we take all of our variables into account.
 
@@ -842,7 +845,7 @@ plot(perf_ROC, main="ROC plot")
 classification_accuracy_rf <- (conf_rf[1,1]+conf_rf[2,2])/(sum(conf_rf))
 ```
 
-Furthermore, the corresponding confusion matrix is and the corresponding classification accuracy is `r classification_accuracy_rf`, very close to what we get in our logistic model after AIC variable selection. 
+Furthermore, the corresponding confusion matrix is below, and the corresponding classification accuracy is `r classification_accuracy_rf`, very close to what we get in our logistic model after AIC variable selection. 
 
 ```{r, echo=FALSE}
 conf_rf
@@ -851,6 +854,7 @@ conf_rf
 However, the AUC that we computed from the ROC plot had a rather significant increase to `r AUC`. This is almost 3% higher than what we have obtained from our logistic model. Now, we will move on to SVM and see how it compares.
 
 ## Method 3. Support Vector Machine (SVM) - Extra Method
+
 ```{r, echo = FALSE}
 split = sample.split(bank_small$y,SplitRatio = 0.80)
 train.svm = subset(bank_small, split == TRUE)
@@ -872,7 +876,7 @@ conf.svm = table(pred.svm, as.factor(test.svm$y))
 acc.svm = (conf.svm[1,1]+conf.svm[2,2])/(sum(conf.svm))
 ```
 
-### Support Vector Machine(SVM) Interpretation
+### Support Vector Machine (SVM) Interpretation
 
 Support Vector Machine is a very popular classification technique used in Machine Learning. It is widely used due to having a significant accuracy. However, this type of model is commonly used for relatively smaller datasets. We mainly decided to use SVM becuase of the significant accuracy that is usually obtained from this model. 
 
@@ -885,7 +889,7 @@ Moreover, from doing additional computation, we found out the Area Under the Cur
 By looking at all these scores and comparing them with the different model that we had, we came to a conclusion that for this particular dataset, SVM is not the best model.
 
 
-## Final Comparison between Logistic Regression and Random Forest
+## Final Comparison between Logistic Regression, Random Forest, and SVM
 
 ```{r, message=FALSE, warning = FALSE, echo = FALSE}
 comparison.table = data.frame(Method = c('Random Forest', 'Logistic Regression', 'SVM'), Accuracy = NA, AUC = NA )
