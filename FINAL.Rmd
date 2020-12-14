@@ -784,7 +784,7 @@ Now, we will move on to our second method, Random Forest and see how it compares
 
 The second method that we choose is Random Forest. A Random Forest is a collection of decision trees and average/majority vote of the forest is selected as the predicted output. The reason that we choose it is because a Random Forest model will be less prone to over fitting than a decision tree, and gives a more generalized solution. Random Forest is more robust and accurate than decision trees.
 
-Particularly, we would first tune the model so that we find our ideal amount of ntree and mtry. Typically, the rule of thumb is to choose sqrt(p) for classification RF's for mtry. Then, we will investigate the importance of variables in our model. 
+Particularly, we would first tune the model so that we find our ideal amount of ntree and mtry (Use mtry from 1 to p and then use CV to find minimize OOB error). Typically, the rule of thumb is to choose sqrt(p) for classification RF's for mtry. Then, we will investigate the importance of variables in our model. 
 
 ```{r, message=FALSE,warning=FALSE, echo = FALSE}
 #create random forest model with all variables, mtry = sqrt(p) for classification
@@ -824,7 +824,7 @@ We used a manual tuning method (comparing between common choices 100, 200, 300, 
 
 As for mtry, we have ran the tuneRF function, which yielded an optimal result of 4. This corresponds to our rule of thumb of sqrt(16) which equals to 4. 
 
-Then, we built our RF using such parameters. From the importance plots, we see that duration is the most important according to both "MeanDecreaseAccuracy" and "MeanDecreaseGini" whereas default are the worst in both cases. This somewhat corresponds with our results obtained from the stepwise variable seleciton process. 
+Then, we built our RF using such parameters. From the importance plots, we see that duration is the most important (has the most predictive power) according to both "MeanDecreaseAccuracy" and "MeanDecreaseGini" whereas default are the worst in both cases. This somewhat corresponds with our results obtained from the stepwise variable seleciton process. 
 
 ```{r, message=FALSE,warning=FALSE, echo = FALSE}
 prediction_rf <- format(predict(rf, newdata = bank.test, type = "response"))
