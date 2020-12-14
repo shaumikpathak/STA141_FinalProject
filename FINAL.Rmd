@@ -95,7 +95,7 @@ While our main goal is to build a classification model and assist with bank mark
 
 Here is an example of how our data looks like:
 
-```{r}
+```{r, echo=FALSE}
 head(bank.data)
 ```
 
