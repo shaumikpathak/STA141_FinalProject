@@ -154,7 +154,7 @@ Then, we will compare our Logistic Regression and Random Forest along with SVM, 
 
 # 2. Analysis Plan
 
-We would first start by conducting an Exploratory Categorical Data Analysis (EDA) to evaluate the relationship between different variables to the response variable. This would provide a descriptive story as to answering the most basic question like "what happened?" Then, we would start building our classification model using three methods.
+We would first start by conducting an Exploratory Data Analysis (EDA) to evaluate the relationship between different variables to the response variable. This would provide a descriptive story as to answering the most basic question like "what happened?" Then, we would start building our classification model using three methods.
 
 ## 2.1 Population and Study Design
 
@@ -218,7 +218,7 @@ deposit.status = bank.data$y
 # ##Interactive EDA (NOTE: SET TARGET TO y. use install.packages("explore"))
 # #explore_shiny(bank.data)
 ```
-<span style="color:red">(Note: Stop explore_shiny manually to proceed with remaining code)</span>
+<span style="color:red"> (Note: Stop explore_shiny manually to proceed with remaining code) </span>
 
 A short interpretation of the Exploratory Data Analysis is as follows:
 
@@ -749,8 +749,8 @@ conf = table(pred, as.factor(bank.test$y))
 pred2 = predict(logistic.model.AIC, newdata = bank.test, type = "response")
 pred.tune.log = prediction(pred2, bank.test$y)
 perf.tune.log = performance(pred.tune.log, measure = "tpr", x.measure = "fpr")
-accuracy.log = performance(pred.tune.log, measure = "acc", x.measure = "cutoff")
-plot(accuracy.log)
+#accuracy.log = performance(pred.tune.log, measure = "acc", x.measure = "cutoff")
+#plot(accuracy.log)
 plot(perf.tune.log) ##selecting default threshold value of 0.5
 auc.log = as.numeric(performance(pred.tune.log, measure = "auc")@y.values)
 
