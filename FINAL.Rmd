@@ -741,12 +741,6 @@ summary(glm(y ~ duration + poutcome + month + contact + housing + job + campaign
 ```
 
 
-Here are our AUC - ROC plots. AUC - ROC curve is a performance measurement for classification models. ROC is a probability curve and AUC represents degree or measure of separability. It tells how much model is capable of distinguishing between classes. Higher the AUC, the better the model accuracy. 
-
-The ROC and corresponding Area Under Curve (AUC): `r auc.log`
-
-Therefore, our model achieved also 90% of accuracy as well, signifying that we have successfully pruned down the variables that are important.
-
 ```{r, message=FALSE, warning = FALSE, echo = FALSE}
 #Build logistic model with selected significant variables using AIC stepwise variable selection
 logistic.model.AIC <- glm(y ~ duration + poutcome + month + contact + housing + job + campaign + loan + marital + day + education + balance, binomial(link = "logit"),lr.bank.data)
@@ -767,6 +761,12 @@ auc.log = as.numeric(performance(pred.tune.log, measure = "auc")@y.values)
 #Classification accuracy
 log.acc = (conf[1,1]+conf[2,2])/(sum(conf))
 ```
+Here are our AUC - ROC plots. AUC - ROC curve is a performance measurement for classification models. ROC is a probability curve and AUC represents degree or measure of separability. It tells how much model is capable of distinguishing between classes. Higher the AUC, the better the model accuracy. 
+
+The ROC and corresponding Area Under Curve (AUC): `r auc.log`
+
+Therefore, our model achieved also 90% of accuracy as well, signifying that we have successfully pruned down the variables that are important.
+
 
 The confusion matrix is, 
 
