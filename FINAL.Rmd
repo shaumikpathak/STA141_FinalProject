@@ -150,6 +150,8 @@ To answer the primary scientific question of interest, we would fit our model by
 
 For our first method, We would then use both backward and forward stepwise model selection using a likelihood ratio test (LRT) to conduct a heauristic model selection and prune down our model. We would also use AIC and BIC and compare the results of those with LRT. Ultimately, out of all these variable selection methods, we would choose only one logistic regression model that is the most robust among the all.
 
+Then, we will build a Random Forest with tuned mtry and ntree parameters. 
+
 Then, we will compare our Logistic Regression and Random Forest along with SVM, particularly their performance when running on the test data set that we separated, and obtain one final candidate to be our ultimate winner. For the purposes of simplicity, we are splitting our original dataset 80-20 (as a rule of thumb) to create our training and testing sets. 
 
 # 2. Analysis Plan
@@ -781,24 +783,34 @@ Now, we will move on to our second method, Random Forest and see how it compares
 
 The second method that we choose is Random Forest. A Random Forest is a collection of decision trees and average/majority vote of the forest is selected as the predicted output. The reason that we choose it is because a Random Forest model will be less prone to over fitting than a decision tree, and gives a more generalized solution. Random Forest is more robust and accurate than decision trees.
 
-Particularly, we would first investigate the importance of variables and choose sqrt(p) as our a rule of thumb for amount of predictors. We used a manual tuning method to find the optimal ntree value for our random forest model which ended up being 500. The OOB for ntree = 500 was the lowest at 9.45% as well as the confusion matrix classification error was also the lowest compared to the values for the other candidate ntree values.
+Particularly, we would first tune the model so that we find our ideal amount of ntree and mtry. Typically, the rule of thumb is to choose sqrt(p) for classification RF's for mtry. Then, we will investigate the importance of variables in our model. 
 
 ```{r, message=FALSE,warning=FALSE, echo = FALSE}
 #create random forest model with all variables, mtry = sqrt(p) for classification
-control1 = trainControl(method = "repeatedcv", number=10, repeats=3, search="grid")
-tuning.grid = expand.grid(mtry = sqrt(dim(bank.train)[2]-1))
-model.list = list()
-for (ntree in c(100,200,300,500)){
-  set.seed(123)
-  tune.fit = randomForest(as.factor(y)~., data = bank.train, metric=metric, tuneGrid = tuning.grid, trcontrol = control1, ntree = ntree )
-  index.tune = toString(ntree)
-  model.list[[index.tune]] = tune.fit
-  }
-tuning.results = resamples(model.list)
-summrary(tuning.results)
-dotplot(tuning.results)
 
-rf <- randomForest(as.factor(y)~ ., data = bank.train, importance = TRUE, mtry = sqrt(dim(bank.train)[2]-1), ntree = 300)
+#Find ntree
+
+#control1 = trainControl(method = "repeatedcv", number=10, repeats=3, search="grid")
+#tuning.grid = expand.grid(mtry = sqrt(dim(bank.train)[2]-1))
+#model.list = list()
+#for (ntree in c(100,200,300,400, 500)){
+#  set.seed(123)
+#  tune.fit = randomForest(as.factor(y)~., data = bank.train, metric=metric, tuneGrid = tuning.grid, trcontrol = #control1, ntree = ntree )
+#  index.tune = toString(ntree)
+#  model.list[[index.tune]] = tune.fit
+#  }
+#tuning.results = resamples(model.list)
+#summrary(tuning.results)
+#dotplot(tuning.results)
+
+#Finding mtry
+
+#ideal <- tuneRF(bank.train, as.factor(bank.train$y), ntreeTry=500, stepFactor=2, improve=0.05,
+#        trace=FALSE, plot=FALSE, doBest=TRUE)
+
+#Final Model with 500 ntree and 4 mtry
+
+rf <- randomForest(as.factor(y)~ ., data = bank.train, importance = TRUE, mtry = 4, ntree = 500)
 #importance of variables
 importance_of_variables <- importance(rf)
 #plot of importance of variables
@@ -807,7 +819,11 @@ varImpPlot(rf)
 
 ```
 
-From the importance plots, we see that duration is the most important according to both "MeanDecreaseAccuracy" and "MeanDecreaseGini" whereas default are the worst in both cases. This somewhat corresponds with our results obtained from the stepwise variable seleciton process. 
+We used a manual tuning method (comparing between common choices 100, 200, 300, 400, and 500) to find the optimal ntree value for our random forest model, which ended up being 500. The OOB for ntree = 500 was the lowest at 9.45% as well as the confusion matrix classification error was also the lowest compared to the values for the other candidate ntree values.
+
+As for mtry, we have ran the tuneRF function, which yielded an optimal result of 4. This corresponds to our rule of thumb of sqrt(16) which equals to 4. 
+
+Then, we built our RF using such parameters. From the importance plots, we see that duration is the most important according to both "MeanDecreaseAccuracy" and "MeanDecreaseGini" whereas default are the worst in both cases. This somewhat corresponds with our results obtained from the stepwise variable seleciton process. 
 
 ```{r, message=FALSE,warning=FALSE, echo = FALSE}
 prediction_rf <- format(predict(rf, newdata = bank.test, type = "response"))
